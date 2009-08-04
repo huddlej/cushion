@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>{% block title %}{{ title }}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.2/build/reset-fonts-grids/reset-fonts-grids.css">
+    <link rel="stylesheet" href="/site_media/css/base.css" type="text/css" />
+</head>
+<body>
+
+<div id="doc" class="yui-t7">
+    <div id="hd">
+    {% if user.is_authenticated %}
+        You are logged in as {{ user.get_full_name }} (<a href="">Logout</a>)
+    {% endif %}
+
+    {% block menu %}
+        {% include "cushion/menu.html" %}
+    {% endblock %}
+
+    {% if messages %}
+        <ul class="messages">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% block header %}<h1>{{ title }}</h1>{% endblock %}
+    </div>
+    <div id="bd">
+        <div class="yui-g">
+        {% block content %}{% endblock %}
+        </div>
+	</div>
+    <div id="ft">{% block footer %}{% endblock %}</div>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>

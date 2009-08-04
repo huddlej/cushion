@@ -1,0 +1,9 @@
+{% extends "cushion/base.html" %}
+
+{% load markup %}
+
+{% block content %}
+<p>[<a href="{% url cushion_edit doc.id %}">Edit Page</a>]</p>
+
+{{ doc.content|markdown }}
+{% endblock %}

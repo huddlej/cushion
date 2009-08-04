@@ -1,0 +1,25 @@
+{% extends "cushion/base.html" %}
+
+{% block content %}
+{% if doc %}
+    <h1>Editing: <a href="..">{{ doc.title }}</a></h1>
+{% else %}
+    <h1>Creating new document</h1>
+{% endif %}
+
+<form method="post" action="">
+    <dl>
+        <dt>{{ form.title.label }}</dt><dd>{{ form.title }}</dd>
+        <dt></dt><dd>{{ form.content }}</dd>
+    </dl>
+    <p><input type="submit" /></p>
+</form>
+<div class="wmd-preview"></div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+wmd_options = {output: "Markdown"};
+</script>
+<script type="text/javascript" src="/site_media/js/wmd/wmd.js""></script>
+{% endblock %}

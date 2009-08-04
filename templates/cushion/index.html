@@ -1,0 +1,13 @@
+{% extends "cushion/base.html" %}
+
+{% block content %}
+<h1>Hey Look!  It's a Website!</h1>
+
+<p>Hi!  This is the index! Here are some docs:</p>
+
+<ul>
+{% for doc in docs %}
+    <li><a href="{{ doc.id }}">{{ doc.title }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}
