@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 
 from forms import DocumentForm, UploadFileForm
@@ -14,6 +14,15 @@ def get_database():
     server = couchdb.Server(settings.COUCHDB_SERVER)
     db = server[settings.CUSHION_DATABASE]
     return db
+
+
+def get_document_or_404(db, doc_id):
+    try:
+        doc = db[doc_id]
+    except couchdb.client.ResourceNotFound, e:
+        raise Http404("Couldn't find a document with id '%s'." % doc_id)
+
+    return doc
 
 
 def index(request):
@@ -27,7 +36,7 @@ def index(request):
 def doc(request, doc_id):
     doc_id = doc_id.replace("/", "_")
     db = get_database()
-    doc = db[doc_id]
+    doc = get_document_or_404(db, doc_id)
     template_name = doc.pop("template_name", "cushion/default.html")
     return render_to_response(template_name, {"title": doc["title"], "doc": doc})
 
@@ -35,7 +44,7 @@ def doc(request, doc_id):
 def edit(request, doc_id=None):
     db = get_database()
     if doc_id is not None:
-        doc = db[doc_id]
+        doc = get_document_or_404(db, doc_id)
     else:
         doc = None
 
