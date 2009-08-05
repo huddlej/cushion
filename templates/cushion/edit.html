@@ -7,10 +7,22 @@
     <h1>Creating new document</h1>
 {% endif %}
 
-<form method="post" action="">
+<form method="post" action="" enctype="multipart/form-data">
     <dl>
         <dt>{{ form.title.label }}</dt><dd>{{ form.title }}</dd>
         <dt></dt><dd>{{ form.content }}</dd>
+        <dt>{{ upload_form.file.label }}</dt>
+        <dd>
+            {{ upload_form.file }}
+            {% if files %}
+                <p>Attached Files:</p>
+                <ul>
+                {% for file in files %}
+                    <li>{{ file }} (<a href="?delete_attachment={{ file }}">delete</a>)</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </dd>
     </dl>
     <p><input type="submit" /></p>
 </form>

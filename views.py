@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 
-from forms import DocumentForm
+from forms import DocumentForm, UploadFileForm
 
 
 def get_database():
@@ -39,8 +39,18 @@ def edit(request, doc_id=None):
     else:
         doc = None
 
+    # Handle any requests to delete an attachment and return to editing the
+    # document.
+    delete_attachment = request.GET.get("delete_attachment")
+    if delete_attachment and doc:
+        db.delete_attachment(doc, delete_attachment)
+        return HttpResponseRedirect(reverse("cushion_edit", args=(doc.id,)))
+
     data = request.POST or None
+    files = request.FILES or None
+
     form = DocumentForm(data, initial=doc)
+    upload_form = UploadFileForm(data, files)
     if form.is_valid():
         if doc_id:
             doc.update(form.cleaned_data)
@@ -49,7 +59,18 @@ def edit(request, doc_id=None):
             doc.id = uuid4().hex
 
         db[doc_id] = doc
-        return HttpResponseRedirect(reverse("cushion_doc", args=(doc.id,)))
-    return render_to_response("cushion/edit.html",
-                              {"form": form,
-                               "doc": doc})
+
+        # Add a file to the document.
+        if upload_form.is_valid():
+            file = request.FILES["file"]
+            db.put_attachment(doc, file, file.name)
+
+        return HttpResponseRedirect(reverse("cushion_edit", args=(doc.id,)))
+
+    context = {"form": form,
+               "upload_form": upload_form,
+               "doc": doc}
+    if doc:
+        context["files"] = doc.get("_attachments")
+
+    return render_to_response("cushion/edit.html", context)
