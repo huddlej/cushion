@@ -59,12 +59,14 @@ def view(request, database_name, view="_all_docs"):
                                "documents": documents})
 
 
-def doc(request, doc_id):
-    doc_id = doc_id.replace("/", "_")
-    db = get_database()
-    doc = get_document_or_404(db, doc_id)
-    template_name = doc.pop("template_name", "cushion/default.html")
-    return render_to_response(template_name, {"title": doc["title"], "doc": doc})
+def document(request, database_name, document_id):
+    server = Server(settings.COUCHDB_SERVER)
+    database = server.get_or_create_db(database_name)
+    document = database.get(document_id)
+    return render_to_response("cushion/document.html",
+                              {"title": "Document: %s" % document_id,
+                               "database_name": database_name,
+                               "document": document})
 
 
 def edit(request, doc_id=None):
