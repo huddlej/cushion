@@ -11,15 +11,6 @@ from django.shortcuts import render_to_response
 from forms import DocumentForm, UploadFileForm
 
 
-def get_document_or_404(db, doc_id):
-    try:
-        doc = db[doc_id]
-    except couchdb.client.ResourceNotFound, e:
-        raise Http404("Couldn't find a document with id '%s'." % doc_id)
-
-    return doc
-
-
 def index(request):
     server = Server(settings.COUCHDB_SERVER)
     databases = [server.get_or_create_db(db).info() for db in server.all_dbs()]
