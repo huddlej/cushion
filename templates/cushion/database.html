@@ -1,0 +1,30 @@
+{% extends "cushion/base.html" %}
+
+{% block menu %}
+<ol class="menu">
+    <li>&laquo; <a href="{% url cushion_index %}">Home</a></li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<h2>Views</h2>
+
+<ol>
+    <li><a href="{% url cushion_view database_name "_all_docs" %}">All Documents</a></li>
+    <li>
+        Design Documents
+        <dl>
+        {% for design_doc, views in views_by_design_doc.items %}
+            <dt>{{ design_doc }}</dt>
+            <dd>
+                <ul>
+                {% for view in views %}
+                    <li>{{ view }}</li>
+                {% endfor %}
+                </ul>
+            </dd>
+        {% endfor %}
+        </dl>
+    </li>
+</ol>
+{% endblock %}

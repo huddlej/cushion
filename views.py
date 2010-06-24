@@ -1,3 +1,4 @@
+from couchdbkit import Server
 import couchdb
 import pprint
 from uuid import uuid4
@@ -10,12 +11,6 @@ from django.shortcuts import render_to_response
 from forms import DocumentForm, UploadFileForm
 
 
-def get_database():
-    server = couchdb.Server(settings.COUCHDB_SERVER)
-    db = server[settings.CUSHION_DATABASE]
-    return db
-
-
 def get_document_or_404(db, doc_id):
     try:
         doc = db[doc_id]
@@ -26,11 +21,38 @@ def get_document_or_404(db, doc_id):
 
 
 def index(request):
-    db = get_database()
-    docs = [doc.doc
-            for doc in db.view("_design/%s/_view/by_title" % settings.CUSHION_DATABASE,
-                               include_docs=True)]
-    return render_to_response("cushion/index.html", {"docs": docs})
+    server = Server(settings.COUCHDB_SERVER)
+    databases = [server.get_or_create_db(db).info() for db in server.all_dbs()]
+    return render_to_response("cushion/index.html",
+                              {"title": "CouchDB",
+                               "server": server,
+                               "databases": databases})
+
+
+def database(request, database_name):
+    server = Server(settings.COUCHDB_SERVER)
+    database = server.get_or_create_db(database_name)
+    views_by_design_doc = {}
+
+    # Fetch all documents defining a key range that includes only design
+    # documents.
+    for design_doc in database.all_docs(startkey="_design", endkey="_design0"):
+        doc = database.get(design_doc["id"])
+        if "views" in doc:
+            views_by_design_doc[design_doc["id"]] = sorted(doc["views"].keys())
+
+    return render_to_response("cushion/database.html",
+                              {"title": "Database: %s" % database_name,
+                               "server": server,
+                               "database_name": database.dbname,
+                               "views_by_design_doc": views_by_design_doc})
+
+
+def view(request, database_name, view="_all_docs"):
+    return render_to_response("cushion/view.html",
+                              {"title": "View: %s" % view,
+                               "database_name": database_name,
+                               "view": view})
 
 
 def doc(request, doc_id):

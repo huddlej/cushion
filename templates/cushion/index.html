@@ -1,13 +1,23 @@
 {% extends "cushion/base.html" %}
 
+{% block menu %}{% endblock %}
+
 {% block content %}
-<h1>Hey Look!  It's a Website!</h1>
-
-<p>Hi!  This is the index! Here are some docs:</p>
-
-<ul>
-{% for doc in docs %}
-    <li><a href="{{ doc.id }}">{{ doc.title }}</a></li>
+<h2>Databases</h2>
+<table border=1>
+    <tr>
+        <th>Name</th>
+        <th>Size</th>
+        <th>Number of Documents</th>
+        <th>Update Sequence</th>
+    </tr>
+{% for database in databases %}
+    <tr>
+        <td><a href="{% url cushion_database database.db_name %}">{{ database.db_name }}</a></td>
+        <td>{{ database.disk_size }}</td>
+        <td>{{ database.doc_count }}</td>
+        <td>{{ database.update_seq }}</td>
+    </tr>
 {% endfor %}
-</ul>
+</table>
 {% endblock %}
