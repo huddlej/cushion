@@ -49,10 +49,14 @@ def database(request, database_name):
 
 
 def view(request, database_name, view="_all_docs"):
+    server = Server(settings.COUCHDB_SERVER)
+    database = server.get_or_create_db(database_name)
+    documents = database.view(view, limit=10)
     return render_to_response("cushion/view.html",
                               {"title": "View: %s" % view,
                                "database_name": database_name,
-                               "view": view})
+                               "view": view,
+                               "documents": documents})
 
 
 def doc(request, doc_id):

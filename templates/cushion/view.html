@@ -8,5 +8,11 @@
 {% endblock %}
 
 {% block content %}
-{{ view }}
+<h2>Documents</h2>
+
+<ol>
+{% for document in documents %}
+    <li><a href="{% url cushion_document database_name document.id %}">{{ document.id }}</a></li>
+{% endfor %}
+</ol>
 {% endblock %}
