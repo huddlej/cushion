@@ -1,6 +1,7 @@
 import logging
 
 from django import forms
+from django.utils.datastructures import SortedDict
 
 log = logging.getLogger(__name__)
 
@@ -37,8 +38,8 @@ def get_form_for_document(document, instantiate=False):
     }
 
     # Convert field types into Field objects.
-    fields = {}
-    for field_name, value in document.items():
+    fields = SortedDict()
+    for field_name, value in sorted(document.items()):
         field_type = type_to_field.get(type(value))
 
         if field_type is not None:
