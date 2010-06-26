@@ -1,4 +1,8 @@
+import logging
+
 from django import forms
+
+log = logging.getLogger(__name__)
 
 
 class DocumentForm(forms.Form):
@@ -43,11 +47,11 @@ def get_form_for_document(document):
 
     # Create the form from the class name and Field objects.
     form = type(class_name, (forms.Form,), fields)
+    log.debug("form: %s" % form)
 
     # If there is a description set it as the doc string.
     if description:
         form.__doc__ = description
 
-    log.debug("form: %s" % form)
     return form
 
