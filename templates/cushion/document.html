@@ -8,10 +8,6 @@
 {% endblock %}
 
 {% block content %}
-<pre>
-{{ document|pprint }}
-</pre>
-
 <form method="post" action="">{% csrf_token %}
 {{ form.as_p }}
 <p><input type="submit" /></p>
