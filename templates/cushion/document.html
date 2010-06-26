@@ -12,7 +12,7 @@
 {{ document|pprint }}
 </pre>
 
-<form>
+<form method="post" action="">{% csrf_token %}
 {{ form.as_p }}
 <p><input type="submit" /></p>
 </form>

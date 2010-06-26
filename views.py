@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 from forms import DocumentForm, UploadFileForm, get_form_for_document
 
@@ -61,7 +62,8 @@ def document(request, database_name, document_id):
                               {"title": "Document: %s" % document_id,
                                "database_name": database_name,
                                "document": document,
-                               "form": form})
+                               "form": form},
+                              context_instance=RequestContext(request))
 
 
 def edit(request, doc_id=None):
