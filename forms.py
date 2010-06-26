@@ -35,14 +35,18 @@ def get_form_for_document(document):
 
     # Convert field types into Field objects.
     fields = {}
-
     for field_name, value in document.items():
         field_type = type_to_field.get(type(value))
+
         if field_type is not None:
+            # Special fields for CouchDB like _id and _rev get hidden fields.
+            if field_name.startswith("_"):
+                field = field_type(widget=forms.HiddenInput())
+            else:
+                field = field_type()
 
+            fields[field_name] = field
 
-        field = getattr(forms, field_type)(**field_definition)
-        fields[field_name] = field
     log.debug("fields: %s" % fields)
 
     # Create the form from the class name and Field objects.
