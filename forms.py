@@ -15,10 +15,13 @@ class UploadFileForm(forms.Form):
     file = forms.FileField(label="Attach a file:")
 
 
-def get_form_for_document(document):
+def get_form_for_document(document, instantiate=False):
     """
     Returns a Django form with fields based on the data types of the given
     CouchDB document.
+
+    If ``instantiate`` is True, an instance of the form class will be returned
+    with the given document values as the initial data.
     """
     # Get the class name.
     class_name = str(document.get("type", document["_id"]))
@@ -53,9 +56,8 @@ def get_form_for_document(document):
     form = type(class_name, (forms.Form,), fields)
     log.debug("form: %s" % form)
 
-    # If there is a description set it as the doc string.
-    if description:
-        form.__doc__ = description
+    if instantiate:
+        form = form(initial=document)
 
     return form
 
