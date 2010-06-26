@@ -21,7 +21,7 @@ def get_form_for_document(document):
     CouchDB document.
     """
     # Get the class name.
-    class_name = document.get("type", document["_id"])
+    class_name = str(document.get("type", document["_id"]))
     log.debug("class name: %s" % class_name)
 
     # Type to form field mappings.
