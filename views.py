@@ -68,12 +68,18 @@ def document(request, database_name, document_id):
             )
         )
 
-    return render_to_response("cushion/document.html",
-                              {"title": "Document: %s" % document_id,
-                               "database_name": database_name,
-                               "document": document,
-                               "form": form},
-                              context_instance=RequestContext(request))
+    context = {
+        "title": "Document: %s" % document_id,
+        "database_name": database_name,
+        "document": document,
+        "form": form
+    }
+
+    return render_to_response(
+        "cushion/document.html",
+        context,
+        context_instance=RequestContext(request)
+    )
 
 
 def edit(request, doc_id=None):
