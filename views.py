@@ -54,7 +54,9 @@ def document(request, database_name, document_id):
     server = Server(settings.COUCHDB_SERVER)
     database = server.get_or_create_db(database_name)
     document = database.get(document_id)
-    form = get_form_for_document(document, instantiate=True)
+    form_class = get_form_for_document(document)
+    form = form_class(request.POST or None, initial=document)
+
     return render_to_response("cushion/document.html",
                               {"title": "Document: %s" % document_id,
                                "database_name": database_name,
