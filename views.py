@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 
-from forms import DocumentForm, UploadFileForm
+from forms import DocumentForm, UploadFileForm, get_form_for_document
 
 
 def index(request):
@@ -54,10 +54,12 @@ def document(request, database_name, document_id):
     server = Server(settings.COUCHDB_SERVER)
     database = server.get_or_create_db(database_name)
     document = database.get(document_id)
+    form = get_form_for_document(document, instantiate=True)
     return render_to_response("cushion/document.html",
                               {"title": "Document: %s" % document_id,
                                "database_name": database_name,
-                               "document": document})
+                               "document": document,
+                               "form": form})
 
 
 def edit(request, doc_id=None):
