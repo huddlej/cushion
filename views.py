@@ -58,6 +58,16 @@ def document(request, database_name, document_id):
     form_class = get_form_for_document(document)
     form = form_class(request.POST or None, initial=document)
 
+    if form.is_valid():
+        document.update(form.cleaned_data)
+        database.save_doc(document)
+        return HttpResponseRedirect(
+            reverse(
+                "cushion_document",
+                args=(database_name, document_id)
+            )
+        )
+
     return render_to_response("cushion/document.html",
                               {"title": "Document: %s" % document_id,
                                "database_name": database_name,
