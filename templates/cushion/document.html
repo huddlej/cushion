@@ -1,9 +1,10 @@
 {% extends "cushion/base.html" %}
 
-{% block menu %}
-<ol class="menu">
-    <li>&laquo; <a href="{% url cushion_index %}">Home</a></li>
-    <li>&lsaquo; <a href="{% url cushion_database database_name %}">{{ database_name }}</a></li>
+{% block parentcrumbs %}
+ &rsaquo; <a href="{% url cushion_database database_name %}">{{ database_name }}</a></li>
+{% if view_name %}
+     &rsaquo; <a href="{% url cushion_view database_name view_name %}">{{ view_name }}</a></li>
+{% endif %}
 </ol>
 {% endblock %}
 

@@ -1,38 +1,13 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
- "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
-    <title>{% block title %}{{ title }}{% endblock %}</title>
-</head>
-<body>
+{% extends "admin/base_site.html" %}
+{% load i18n %}
 
-<div id="doc" class="yui-t7">
-    <div id="hd">
-    {% if user.is_authenticated %}
-        You are logged in as {{ user.get_full_name }} (<a href="">Logout</a>)
-    {% endif %}
+{% block branding %}<h1>CouchDB</h1>{% endblock %}
 
-    {% block menu %}
-        {% include "cushion/menu.html" %}
-    {% endblock %}
-
-    {% if messages %}
-        <ul class="messages">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-
-    {% block header %}<h1>{{ title }}</h1>{% endblock %}
-    </div>
-    <div id="bd">
-        <div class="yui-g">
-        {% block content %}{% endblock %}
-        </div>
-	</div>
-    <div id="ft">{% block footer %}{% endblock %}</div>
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url cushion_index %}">{% trans 'Home' %}</a>
+{% block parentcrumbs %}
+{% endblock %}
+{% if title %} &rsaquo; {{ title }}{% endif %}
 </div>
-{% block scripts %}{% endblock %}
-</body>
-</html>
+{% endblock %}
