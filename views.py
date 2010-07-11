@@ -42,12 +42,28 @@ def database(request, database_name):
 def view(request, database_name, view="_all_docs"):
     server = Server(settings.COUCHDB_SERVER)
     database = server.get_or_create_db(database_name)
-    documents = database.view(view, limit=10)
+    documents_per_page = 10
+
+    try:
+        page = int(request.GET.get("page", "1"))
+    except ValueError:
+        page = 1
+
+    documents_list = database.view(
+        view,
+        limit=documents_per_page,
+        skip=page*documents_per_page
+    )
+    num_pages = documents_list.total_rows / documents_per_page
+    documents = list(documents_list)
+
     return render_to_response("cushion/view.html",
                               {"title": "View: %s" % view,
                                "database_name": database_name,
                                "view": view,
-                               "documents": documents})
+                               "documents": documents,
+                               "num_pages": num_pages,
+                               "page": page})
 
 
 def document(request, database_name, document_id, view_name=None):

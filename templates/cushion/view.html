@@ -8,6 +8,16 @@
 <h2>Documents</h2>
 
 <ol>
+{% if previous_page %}
+    <li><a href="?page={{ previous_page }}">previous</a></li>
+{% endif %}
+    <li>Page {{ page }} of {{ num_pages }}</li>
+{% if next_page %}
+    <li><a href="?page={{ next_page }}">next</a></li>
+{% endif %}
+</ol>
+
+<ol>
 {% for document in documents %}
     <li><a href="{% url cushion_document database_name view document.id %}">{{ document.id }}</a></li>
 {% endfor %}
