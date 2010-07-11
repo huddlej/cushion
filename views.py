@@ -51,7 +51,7 @@ def view(request, database_name, view="_all_docs"):
                                "documents": documents})
 
 
-def document(request, database_name, document_id):
+def document(request, database_name, document_id, view_name=None):
     server = Server(settings.COUCHDB_SERVER)
     database = server.get_or_create_db(database_name)
     document = database.get(document_id)
@@ -71,6 +71,7 @@ def document(request, database_name, document_id):
     context = {
         "title": "Document: %s" % document_id,
         "database_name": database_name,
+        "view_name": view_name,
         "document": document,
         "form": form
     }
