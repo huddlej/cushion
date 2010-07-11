@@ -16,8 +16,7 @@ def index(request):
     server = Server(settings.COUCHDB_SERVER)
     databases = [server.get_or_create_db(db).info() for db in server.all_dbs()]
     return render_to_response("cushion/index.html",
-                              {"title": "CouchDB",
-                               "server": server,
+                              {"server": server,
                                "databases": databases})
 
 
