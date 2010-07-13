@@ -53,7 +53,7 @@ def view(request, database_name, view_name, design_doc_name=None):
     request.session["last_couchdb_page"] = page
 
     if design_doc_name:
-        view_path = "%s/%s" % (design_doc_name, view_name),
+        view_path = "%s/%s" % (design_doc_name, view_name)
     else:
         view_path = view_name
 
