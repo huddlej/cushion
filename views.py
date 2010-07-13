@@ -51,8 +51,11 @@ def view(request, database_name, view_name, design_doc_name=None):
     except ValueError:
         page = 1
 
-    request.session["last_couchdb_view"] = view_name
-    request.session["last_couchdb_page"] = page
+    request.session["last_couchdb_view"] = {
+        "name": view_name,
+        "design_doc_name": design_doc_name,
+        "page": page
+    }
 
     if design_doc_name:
         view_path = "%s/%s" % (design_doc_name, view_name)
