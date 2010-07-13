@@ -26,3 +26,6 @@ A Django application for browsing and editing CouchDB documents.
         - browse lists
         - edit original document
       - Changes
+
+See also benoitc's [djangoadmin branch for
+couchdbkit](http://github.com/benoitc/couchdbkit/tree/djangoadmin).
