@@ -49,21 +49,37 @@ def view(request, database_name, view="_all_docs"):
     except ValueError:
         page = 1
 
+    start_value = (page - 1) * documents_per_page
     documents_list = database.view(
         view,
         limit=documents_per_page,
-        skip=page*documents_per_page
+        skip=start_value
     )
+
     num_pages = documents_list.total_rows / documents_per_page
+
+    if page > 1:
+        previous_page = page - 1
+    else:
+        previous_page = None
+
+    if page < num_pages:
+        next_page = page + 1
+    else:
+        next_page = None
+
     documents = list(documents_list)
 
     return render_to_response("cushion/view.html",
                               {"title": "View: %s" % view,
                                "database_name": database_name,
                                "view": view,
+                               "start_value": start_value,
                                "documents": documents,
                                "num_pages": num_pages,
-                               "page": page})
+                               "page": page,
+                               "previous_page": previous_page,
+                               "next_page": next_page})
 
 
 def document(request, database_name, document_id, view_name=None):

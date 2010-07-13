@@ -7,17 +7,23 @@
 {% block content %}
 <h2>Documents</h2>
 
-<ol>
+<ol class="menu">
+{% if page != 1 %}
+    <li>&laquo; <a href="?page=1">First</a></li>
+{% endif %}
 {% if previous_page %}
-    <li><a href="?page={{ previous_page }}">previous</a></li>
+    <li>&lsaquo; <a href="?page={{ previous_page }}">Previous</a></li>
 {% endif %}
     <li>Page {{ page }} of {{ num_pages }}</li>
 {% if next_page %}
-    <li><a href="?page={{ next_page }}">next</a></li>
+    <li><a href="?page={{ next_page }}">Next &rsaquo;</a></li>
+{% endif %}
+{% if page != num_pages %}
+    <li><a href="?page={{ num_pages }}">Last</a> &raquo;</li>
 {% endif %}
 </ol>
 
-<ol>
+<ol start="{{ start_value }}">
 {% for document in documents %}
     <li><a href="{% url cushion_document database_name view document.id %}">{{ document.id }}</a></li>
 {% endfor %}
