@@ -30,7 +30,9 @@ def database(request, database_name):
     for design_doc in database.all_docs(startkey="_design", endkey="_design0"):
         doc = database.get(design_doc["id"])
         if "views" in doc:
-            views_by_design_doc[design_doc["id"]] = sorted(doc["views"].keys())
+            # Convert "_design/mydesigndoc" to "mydesigndoc".
+            design_doc_name = design_doc["id"].split("/")[1]
+            views_by_design_doc[design_doc_name] = sorted(doc["views"].keys())
 
     return render_to_response("cushion/database.html",
                               {"title": "Database: %s" % database_name,
