@@ -39,7 +39,7 @@ def database(request, database_name):
                                "views_by_design_doc": views_by_design_doc})
 
 
-def view(request, database_name, view="_all_docs"):
+def view(request, database_name, view_name, design_doc_name=None):
     server = Server(settings.COUCHDB_SERVER)
     database = server.get_or_create_db(database_name)
     documents_per_page = 10
@@ -49,9 +49,14 @@ def view(request, database_name, view="_all_docs"):
     except ValueError:
         page = 1
 
+    if design_doc_name:
+        view_path = "%s/%s" % (design_doc_name, view_name),
+    else:
+        view_path = view_name
+
     start_value = (page - 1) * documents_per_page
     documents_list = database.view(
-        view,
+        view_path,
         limit=documents_per_page,
         skip=start_value
     )
@@ -71,9 +76,10 @@ def view(request, database_name, view="_all_docs"):
     documents = list(documents_list)
 
     return render_to_response("cushion/view.html",
-                              {"title": "View: %s" % view,
+                              {"title": "View: %s" % view_name,
                                "database_name": database_name,
-                               "view": view,
+                               "view": view_name,
+                               "design_doc_name": design_doc_name,
                                "start_value": start_value,
                                "documents": documents,
                                "num_pages": num_pages,
