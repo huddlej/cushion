@@ -13,7 +13,7 @@
             <dd>
                 <ul>
                 {% for view in views %}
-                    <li>{{ view }}</li>
+                    <li><a href="{% url cushion_view database_name design_doc view %}">{{ view }}</a></li>
                 {% endfor %}
                 </ul>
             </dd>
