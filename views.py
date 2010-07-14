@@ -10,6 +10,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from forms import (
+    CreateDatabaseForm,
     DocumentForm,
     UploadFileForm,
     get_form_for_document
@@ -19,9 +20,18 @@ from forms import (
 def index(request):
     server = Server(settings.COUCHDB_SERVER)
     databases = [server.get_or_create_db(db).info() for db in server.all_dbs()]
+
+    create_database_form = CreateDatabaseForm(request.POST or None)
+    if create_database_form.is_valid():
+        database_name = create_database_form.cleaned_data["name"]
+        return HttpResponseRedirect(reverse("cushion_database",
+                                            args=(database_name,)))
+
     return render_to_response("cushion/index.html",
                               {"server": server,
-                               "databases": databases})
+                               "databases": databases,
+                               "form": create_database_form},
+                              context_instance=RequestContext(request))
 
 
 def database(request, database_name):

@@ -2,6 +2,16 @@
 
 {% block content %}
 <h2>Databases</h2>
+
+<h3>Create a Database</h3>
+<form action="" method="post">{% csrf_token %}
+<p>
+    {{ form.name.label_tag }}: {{ form.name }}<br />
+    <span class="help">{{ form.name.help_text }}</span>
+</p>
+<p><input type="submit" value="Create" /></p>
+</form>
+
 <table border=1>
     <tr>
         <th>Name</th>

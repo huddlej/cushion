@@ -6,6 +6,10 @@ from django.utils.datastructures import SortedDict
 log = logging.getLogger(__name__)
 
 
+class CreateDatabaseForm(forms.Form):
+    name = forms.CharField(help_text="Note that only lowercase characters (a-z), digits (0-9), or any of the characters _, $, (, ), +, -, and / are allowed.")
+
+
 class DocumentForm(forms.Form):
     title = forms.CharField()
     content = forms.CharField(widget=forms.Textarea(attrs={"cols": 80,
