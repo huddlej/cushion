@@ -15,4 +15,22 @@
 {{ form.as_p }}
 <p><input type="submit" /></p>
 </form>
+
+{% if attachments %}
+    <h2>Attachments</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Size</th>
+        </tr>
+    {% for name, info in attachments.items %}
+        <tr>
+            <td>{{ name }}</td>
+            <td>{{ info.content_type }}</td>
+            <td>{{ info.length }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endif %}
 {% endblock %}

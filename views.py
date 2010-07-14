@@ -118,6 +118,7 @@ def document(request, database_name, document_id, view_name=None):
         "database_name": database_name,
         "view_name": view_name,
         "document": document,
+        "attachments": document.get("_attachments", {}),
         "form": form
     }
 
