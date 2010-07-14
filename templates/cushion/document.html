@@ -4,7 +4,11 @@
  &rsaquo; <a href="{% url cushion_database database_name %}">{{ database_name }}</a></li>
 {% with request.session.last_couchdb_view as view %}
     {% if view.name %}
-         &rsaquo; <a href="{% url cushion_view database_name view.design_doc_name view.name %}?page={{ view.page }}">{{ view.name }}</a></li>
+         {% if view.name == "_all_docs" %}
+             &rsaquo; <a href="{% url cushion_view database_name view.name %}?page={{ view.page }}">{{ view.name }}</a></li>
+         {% else %}
+             &rsaquo; <a href="{% url cushion_view database_name view.design_doc_name view.name %}?page={{ view.page }}">{{ view.name }}</a></li>
+         {% endif %}
     {% endif %}
 {% endwith %}
 </ol>
