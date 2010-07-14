@@ -1,6 +1,6 @@
 from couchdbkit import Server
 import couchdb
-import pprint
+import math
 from uuid import uuid4
 
 from django.conf import settings
@@ -92,7 +92,7 @@ def view(request, database_name, view_name, design_doc_name=None):
         skip=start_value
     )
 
-    num_pages = documents_list.total_rows / documents_per_page
+    num_pages = int(math.ceil(documents_list.total_rows / float(documents_per_page)))
 
     if page > 1:
         previous_page = page - 1
