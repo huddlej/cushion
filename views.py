@@ -12,6 +12,7 @@ from django.template import RequestContext
 from forms import (
     CreateDatabaseForm,
     DocumentForm,
+    ImportDataForm,
     UploadFileForm,
     get_form_for_document
 )
@@ -39,6 +40,11 @@ def database(request, database_name):
     database = server.get_or_create_db(database_name)
     views_by_design_doc = {}
 
+    form = ImportDataForm(request.POST or None, request.FILES or None)
+    data = None
+    if form.is_valid():
+        data = form.import_data(database, request.FILES["file"])
+
     # Fetch all documents defining a key range that includes only design
     # documents.
     for design_doc in database.all_docs(startkey="_design", endkey="_design0"):
@@ -52,7 +58,10 @@ def database(request, database_name):
                               {"title": "Database: %s" % database_name,
                                "server": server,
                                "database_name": database.dbname,
-                               "views_by_design_doc": views_by_design_doc})
+                               "views_by_design_doc": views_by_design_doc,
+                               "form": form,
+                               "data": data},
+                              context_instance=RequestContext(request))
 
 
 def view(request, database_name, view_name, design_doc_name=None):

@@ -21,4 +21,19 @@
         </dl>
     </li>
 </ol>
+
+<h2>Import Data</h2>
+
+{% if data %}
+    <h3>Data Uploaded</h3>
+
+    <pre style="height: 200px; overflow: auto;">
+    {{ data|pprint }}
+    </pre>
+{% endif %}
+
+<form method="post" action="" enctype="multipart/form-data">{% csrf_token %}
+{{ form.as_p }}
+<p><input type="submit" value="Import" /></p>
+</form>
 {% endblock %}
