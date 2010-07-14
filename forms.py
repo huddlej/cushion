@@ -35,7 +35,7 @@ class ImportDataForm(forms.Form):
         reader = csv.reader(file)
         data = list(reader)
         if len(data) > 0:
-            # Get all non-empty column names.
+            # Get all non-empty column names using the first row of the data.
             column_names = filter(lambda i: i, data.pop(0))
             column_range = xrange(len(column_names))
             docs = []
