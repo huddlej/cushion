@@ -26,7 +26,7 @@
         </tr>
     {% for name, info in attachments.items %}
         <tr>
-            <td>{{ name }}</td>
+            <td><a href="{{ couchdb_server }}/{{ database_name }}/{{ document_id }}/{{ name }}">{{ name }}</a></td>
             <td>{{ info.content_type }}</td>
             <td>{{ info.length }}</td>
         </tr>
