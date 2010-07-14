@@ -9,7 +9,11 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from forms import DocumentForm, UploadFileForm, get_form_for_document
+from forms import (
+    DocumentForm,
+    UploadFileForm,
+    get_form_for_document
+)
 
 
 def index(request):
