@@ -27,6 +27,7 @@
     <tr>
         <th>Key</th>
         <th>Value</th>
+        <th>ID</th>
         {% if request.GET.include_docs == "true" %}
             <th>Document</th>
         {% endif %}
@@ -40,7 +41,8 @@
             {{ document.key }}
         {% endif %}
         </td>
-        <td>{{ document.value|default_if_none:"" }}</td>
+        <td>{{ document.value }}</td>
+        <td>{{ document.id }}</td>
         {% if request.GET.include_docs == "true" %}
             <td>{{ document.doc|pprint }}</td>
         {% endif %}
