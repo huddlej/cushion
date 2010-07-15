@@ -57,6 +57,7 @@ def database(request, database_name):
     data = None
     if form.is_valid():
         data = form.import_data(database, request.FILES["file"])
+        messages.success(request, "Your data was imported successfully.")
 
     # Fetch all documents defining a key range that includes only design
     # documents.
