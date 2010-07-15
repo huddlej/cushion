@@ -5,6 +5,10 @@ A Django application for browsing and editing CouchDB documents.
  - Server
    - Databases
       - Documents
+        - import CSV data
+          - optionally specify schema to use for data
+          - optionally specify unique fields (unique and unique_together)
+          - optionally overwrite/update unique records already stored in the database
         - browse raw documents
         - attachments
           - display attachments
