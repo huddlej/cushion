@@ -23,9 +23,28 @@
 {% endif %}
 </ol>
 
-<ol start="{{ start_value }}">
+<table>
+    <tr>
+        <th>Key</th>
+        <th>Value</th>
+        {% if request.GET.include_docs == "true" %}
+            <th>Document</th>
+        {% endif %}
+    </tr>
 {% for document in documents %}
-    <li><a href="{% url cushion_document database_name document.id %}">{{ document.id }}</a></li>
+    <tr>
+        <td>
+        {% if document.id %}
+            <a href="{% url cushion_document database_name document.id %}">{{ document.key }}</a>
+        {% else %}
+            {{ document.key }}
+        {% endif %}
+        </td>
+        <td>{{ document.value|default_if_none:"" }}</td>
+        {% if request.GET.include_docs == "true" %}
+            <td>{{ document.doc|pprint }}</td>
+        {% endif %}
+    </tr>
 {% endfor %}
-</ol>
+</table>
 {% endblock %}
