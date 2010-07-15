@@ -5,6 +5,7 @@ import urllib
 from uuid import uuid4
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -39,6 +40,17 @@ def index(request):
 def database(request, database_name):
     server = Server(settings.COUCHDB_SERVER)
     database = server.get_or_create_db(database_name)
+
+    if request.GET.get("delete"):
+        server.delete_db(database_name)
+        messages.success(request, "Database '%s' has been deleted." % database_name)
+        return HttpResponseRedirect(reverse("cushion_index"))
+
+    if request.GET.get("compact"):
+        database.compact()
+        messages.success(request, "Database '%s' has been compacted." % database_name)
+        return HttpResponseRedirect(reverse("cushion_database", args=(database_name,)))
+
     views_by_design_doc = {}
 
     form = ImportDataForm(request.POST or None, request.FILES or None)
