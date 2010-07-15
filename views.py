@@ -1,6 +1,7 @@
 from couchdbkit import Server
 import couchdb
 import math
+import urllib
 from uuid import uuid4
 
 from django.conf import settings
@@ -67,12 +68,11 @@ def database(request, database_name):
 def view(request, database_name, view_name, design_doc_name=None):
     server = Server(settings.COUCHDB_SERVER)
     database = server.get_or_create_db(database_name)
-    documents_per_page = 10
 
-    try:
-        page = int(request.GET.get("page", "1"))
-    except ValueError:
-        page = 1
+    get_data = dict([(str(key), value) for key, value in request.GET.items()])
+    skip = int(get_data.pop("skip", "0"))
+    limit = int(get_data.pop("limit", "10"))
+    page = skip / limit + 1
 
     request.session["last_couchdb_view"] = {
         "name": view_name,
@@ -85,38 +85,44 @@ def view(request, database_name, view_name, design_doc_name=None):
     else:
         view_path = view_name
 
-    start_value = (page - 1) * documents_per_page
     documents_list = database.view(
         view_path,
-        limit=documents_per_page,
-        skip=start_value
+        limit=limit,
+        skip=skip,
+        **get_data
     )
 
-    num_pages = int(math.ceil(documents_list.total_rows / float(documents_per_page)))
+    num_pages = int(math.ceil(documents_list.total_rows / float(limit)))
+    last_page = (num_pages - 1) * limit
 
     if page > 1:
-        previous_page = page - 1
+        previous_page = skip - limit
     else:
         previous_page = None
 
     if page < num_pages:
-        next_page = page + 1
+        next_page = skip + limit
     else:
         next_page = None
 
     documents = list(documents_list)
+    get_data["limit"] = limit
+    query_string = urllib.urlencode(get_data)
 
     return render_to_response("cushion/view.html",
                               {"title": "View: %s" % view_name,
                                "database_name": database_name,
                                "view": view_name,
                                "design_doc_name": design_doc_name,
-                               "start_value": start_value,
                                "documents": documents,
                                "num_pages": num_pages,
                                "page": page,
                                "previous_page": previous_page,
-                               "next_page": next_page})
+                               "next_page": next_page,
+                               "last_page": last_page,
+                               "limit": limit,
+                               "query_string": query_string},
+                              context_instance=RequestContext(request))
 
 
 def document(request, database_name, document_id, view_name=None):
