@@ -39,12 +39,19 @@ def index(request):
 
 def database(request, database_name):
     server = Server(settings.COUCHDB_SERVER)
-    database = server.get_or_create_db(database_name)
+
+    if request.GET.get("empty"):
+        server.delete_db(database_name)
+        server.get_or_create_db(database_name)
+        messages.success(request, "Database '%s' has been emptied." % database_name)
+        return HttpResponseRedirect(reverse("cushion_database", args=(database_name,)))
 
     if request.GET.get("delete"):
         server.delete_db(database_name)
         messages.success(request, "Database '%s' has been deleted." % database_name)
         return HttpResponseRedirect(reverse("cushion_index"))
+
+    database = server.get_or_create_db(database_name)
 
     if request.GET.get("compact"):
         database.compact()
