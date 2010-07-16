@@ -56,6 +56,10 @@ class ImportDataForm(forms.Form):
                     model = registered_models.get(self.cleaned_data["model"])
                     try:
                         doc = model(**doc)
+                        doc_id = doc.get_id()
+                        if doc_id is not None:
+                            doc["_id"] = doc_id
+
                         doc["type"] = self.cleaned_data["model"].lower()
                         docs.append(doc)
                     except ValueError, e:

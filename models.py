@@ -1,6 +1,8 @@
 """
 Optional models for raw data being loaded into CouchDB.
 """
+import hashlib
+
 
 class AlreadyRegistered(Exception):
     pass
@@ -56,6 +58,9 @@ class CoercedModel(dict):
                                         % (key, value, e.message))
 
         return values
+
+    def get_id(self):
+        return None
                     
 
 class Specimen(CoercedModel):
@@ -70,6 +75,30 @@ class Specimen(CoercedModel):
         "collector": unicode,
         "collection": unicode
     }
+    _unique_together = (
+        "genus",
+        "species",
+        "latitude",
+        "longitude",
+        "year",
+        "month",
+        "day",
+        "collector",
+        "collection"
+    )
+
+    def get_id(self):
+        """
+        Create a document id from the SHA-1 hash of all non-empty unique field
+        values for this document.
+        """
+        return hashlib.sha1("".join(
+            [str(self.get(key))
+             for key in self._unique_together
+             if self.get(key) is not None]
+        )).hexdigest()
+            
+            
 registry.register("Specimen", Specimen)
 
 class SimilarSpecies(CoercedModel):
