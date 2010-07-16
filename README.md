@@ -33,3 +33,9 @@ A Django application for browsing and editing CouchDB documents.
 
 See also benoitc's [djangoadmin branch for
 couchdbkit](http://github.com/benoitc/couchdbkit/tree/djangoadmin).
+
+Changes to couchdbkit if it's to be used for data import:
+
+ - coercion by schema properties
+ - support for a unique_together setting on schemas
+ - support for database-less schemas and/or databases per schema rather than databases per Django app.
