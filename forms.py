@@ -49,7 +49,8 @@ class ImportDataForm(forms.Form):
                 doc = {}
                 for i in column_range:
                     # Map row value to corresponding column name.
-                    doc[column_names[i]] = row[i]
+                    if len(row[i]) > 0:
+                        doc[column_names[i]] = row[i]
 
                 if self.cleaned_data["model"]:
                     model = registered_models.get(self.cleaned_data["model"])
