@@ -69,7 +69,7 @@ def database(request, database_name):
             context["errors"] = errors
         else:
             messages.success(request, "Your data was imported successfully.")
-            return HttpResponseRedirect(reverse("cushion_database", args=("database_name",)))
+            return HttpResponseRedirect(reverse("cushion_database", args=(database_name,)))
 
     # Fetch all documents defining a key range that includes only design
     # documents.
