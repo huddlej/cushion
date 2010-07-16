@@ -75,9 +75,9 @@ class CoercedModel(dict):
                  for key in self._unique_together
                  if self.get(key) is not None]
             )).hexdigest()
-        
+
         return doc_id
-                    
+
 
 class Specimen(CoercedModel):
     _types = {
