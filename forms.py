@@ -31,6 +31,7 @@ class ImportDataForm(forms.Form):
     MODEL_CHOICES.extend([(name, name) for name, model in registered_models.items()])
     file = forms.FileField(label="Select a data file:")
     model = forms.ChoiceField(choices=MODEL_CHOICES, required=False)
+    overwrite = forms.BooleanField(label="Overwrite existing records", required=False)
 
     def import_data(self, database, file):
         """
@@ -43,10 +44,12 @@ class ImportDataForm(forms.Form):
         if len(data) > 0:
             # Get all non-empty column names using the first row of the data.
             column_names = filter(lambda i: i, data.pop(0))
+
             column_range = xrange(len(column_names))
             docs = []
             for row in data:
                 doc = {}
+                # TODO: Replace this for loop with a zip.
                 for i in column_range:
                     # Map row value to corresponding column name.
                     if len(row[i]) > 0:
@@ -67,9 +70,33 @@ class ImportDataForm(forms.Form):
                 else:
                     docs.append(doc)
 
-        # Save all documents if there weren't any errors.
+        # Only try to save documents if there weren't any errors.
         if len(errors) == 0:
-            database.bulk_save(docs)
+            # Check for existing documents with the same ids as the imported
+            # documents.
+            existing_docs = database.documents(
+                keys=[doc.get("_id") for doc in docs if doc.get("_id")]
+            )
+
+            if len(existing_docs) > 0:
+                if self.cleaned_data["overwrite"]:
+                    # If the user approved document overwriting, update each
+                    # document of imported data to the current revision of that
+                    # document in the database.
+                    revisions_by_id = dict([(doc["id"], doc["value"]["rev"])
+                                            for doc in existing_docs])
+                    for doc in docs:
+                        if "_id" in doc and doc["_id"] in revisions_by_id:
+                            doc["_rev"] = revisions_by_id[doc["_id"]]
+                else:
+                    # If the user didn't approve document overwriting, return an
+                    # error list for the conflicting documents.
+                    docs_by_id = dict([(doc["_id"], doc) for doc in docs])
+                    errors = [(docs_by_id[existing_doc["id"]], "Document already exists.")
+                              for existing_doc in existing_docs]
+
+            if len(errors) == 0:
+                response = database.bulk_save(docs)
 
         return errors
 
