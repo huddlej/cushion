@@ -60,7 +60,20 @@ class CoercedModel(dict):
         return values
 
     def get_id(self):
-        return None
+        """
+        Create a document id from the SHA-1 hash of all non-empty unique field
+        values for this document if unique fields are defined. Otherwise, return
+        None.
+        """
+        doc_id = None
+        if hasattr(self, "_unique_together"):
+            doc_id = hashlib.sha1("".join(
+                [str(self.get(key))
+                 for key in self._unique_together
+                 if self.get(key) is not None]
+            )).hexdigest()
+        
+        return doc_id
                     
 
 class Specimen(CoercedModel):
@@ -85,21 +98,9 @@ class Specimen(CoercedModel):
         "day",
         "collector",
         "collection"
-    )
-
-    def get_id(self):
-        """
-        Create a document id from the SHA-1 hash of all non-empty unique field
-        values for this document.
-        """
-        return hashlib.sha1("".join(
-            [str(self.get(key))
-             for key in self._unique_together
-             if self.get(key) is not None]
-        )).hexdigest()
-            
-            
+    )            
 registry.register("Specimen", Specimen)
+
 
 class SimilarSpecies(CoercedModel):
     _types = {
