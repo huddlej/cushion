@@ -47,7 +47,10 @@ class CoercedModel(dict):
 
     def coerce(self, values):
         """
-        Coerces a dictionary of values to the types specified for given names.
+        Coerce a dictionary of values to the types specified for given names.
+
+        Subclass this method to perform custom manipulation of the basic coerced
+        values it returns.
         """
         for key, value in values.items():
             if key in self._types:
