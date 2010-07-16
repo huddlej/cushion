@@ -34,6 +34,10 @@ class Registry(object):
 registry = Registry()
 
 
+class BadValueError(ValueError):
+    pass
+
+
 class CoercedModel(dict):
     def __init__(self, **kwargs):
         super(CoercedModel, self).__init__()
@@ -45,7 +49,11 @@ class CoercedModel(dict):
         """
         for key, value in values.items():
             if key in self._types:
-                values[key] = self._types[key](value)
+                try:
+                    values[key] = self._types[key](value)
+                except ValueError, e:
+                    raise BadValueError("Attribute '%s' with value '%s' couldn't be validated: %s"
+                                        % (key, value, e.message))
 
         return values
                     
