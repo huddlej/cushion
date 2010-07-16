@@ -29,12 +29,18 @@
 
 <h2>Import Data</h2>
 
-{% if data %}
-    <h3>Data Uploaded</h3>
+{% if errors %}
+    <div class="errornote">
+        <h3>Invalid Data</h3>
 
-    <pre style="height: 200px; overflow: auto;">
-    {{ data|pprint }}
-    </pre>
+        <p>The following rows couldn't be saved:</p>
+        <dl>
+        {% for doc, error in errors %}
+            <dt><pre>{{ doc|pprint }}</pre></dt>
+            <dd>{{ error }}</dd>
+        {% endfor %}
+        </dl>
+    </div>
 {% endif %}
 
 <form method="post" action="" enctype="multipart/form-data">{% csrf_token %}

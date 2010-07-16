@@ -52,12 +52,16 @@ def database(request, database_name):
         return HttpResponseRedirect(reverse("cushion_database", args=(database_name,)))
 
     views_by_design_doc = {}
+    context = {}
 
     form = ImportDataForm(request.POST or None, request.FILES or None)
-    data = None
     if form.is_valid():
-        data = form.import_data(database, request.FILES["file"])
-        messages.success(request, "Your data was imported successfully.")
+        errors = form.import_data(database, request.FILES["file"])
+        if len(errors) > 0:
+            messages.error(request, "There was a problem with one or more rows in your data. Please correct these rows and try uploading again.")
+            context["errors"] = errors
+        else:
+            messages.success(request, "Your data was imported successfully.")
 
     # Fetch all documents defining a key range that includes only design
     # documents.
@@ -68,13 +72,16 @@ def database(request, database_name):
             design_doc_name = design_doc["id"].split("/")[1]
             views_by_design_doc[design_doc_name] = sorted(doc["views"].keys())
 
+    context.update({
+        "title": "Database: %s" % database_name,
+        "server": server,
+        "database_name": database.dbname,
+        "views_by_design_doc": views_by_design_doc,
+        "form": form
+    })
+
     return render_to_response("cushion/database.html",
-                              {"title": "Database: %s" % database_name,
-                               "server": server,
-                               "database_name": database.dbname,
-                               "views_by_design_doc": views_by_design_doc,
-                               "form": form,
-                               "data": data},
+                              context,
                               context_instance=RequestContext(request))
 
 
