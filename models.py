@@ -1,6 +1,7 @@
 """
 Optional models for raw data being loaded into CouchDB.
 """
+import datetime
 import hashlib
 
 
@@ -102,7 +103,34 @@ class Specimen(CoercedModel):
         "day",
         "collector",
         "collection"
-    )            
+    )
+    _protected_collections = ("RBC",)
+
+    def coerce(self, values):
+        """
+        Perform extra manipulation of coerced data such as merging columns.
+        """
+        values = super(Specimen, self).coerce(values)
+
+        # Convert meters to feet using a decimal conversion value and cast
+        # result back to the same type.
+        if values.get("elevation_units") == "m.":
+            feet_per_meter = 3.280839895013123
+            try:
+                values["elevation"] = self._types["elevation"](values["elevation"] * feet_per_meter)
+                values["elevation_units"] = "ft."
+            except TypeError, e:
+                raise BadValueError("Elevation can't be converted to meters: %s" % str(e.message))
+
+        # Mark protected documents.
+        if values.get("collection") in self._protected_collections:
+            values["is_protected"] = True
+
+        # Add a modification timestamp.
+        values["date_modified"] = datetime.datetime.now().isoformat()
+
+        return values
+
 registry.register("Specimen", Specimen)
 
 
