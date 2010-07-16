@@ -4,6 +4,8 @@ import logging
 from django import forms
 from django.utils.datastructures import SortedDict
 
+from models import registry as registered_models
+
 log = logging.getLogger(__name__)
 
 
@@ -25,7 +27,10 @@ class ImportDataForm(forms.Form):
     """
     Imports the uploaded file of data into the selected database.
     """
+    MODEL_CHOICES = [("", "-- Select a model --")]
+    MODEL_CHOICES.extend([(name, name) for name, model in registered_models.items()])
     file = forms.FileField(label="Select a data file:")
+    model = forms.ChoiceField(choices=MODEL_CHOICES, required=False)
 
     def import_data(self, database, file):
         """
@@ -34,6 +39,7 @@ class ImportDataForm(forms.Form):
         """
         reader = csv.reader(file)
         data = list(reader)
+        errors = []
         if len(data) > 0:
             # Get all non-empty column names using the first row of the data.
             column_names = filter(lambda i: i, data.pop(0))
@@ -42,10 +48,22 @@ class ImportDataForm(forms.Form):
             for row in data:
                 doc = {}
                 for i in column_range:
+                    # Map row value to corresponding column name.
                     doc[column_names[i]] = row[i]
-                docs.append(doc)
 
-        return database.bulk_save(docs)
+                if self.cleaned_data["model"]:
+                    model = registered_models.get(self.cleaned_data["model"])
+                    try:
+                        doc = model(**doc)
+                        doc["type"] = self.cleaned_data["model"].lower()
+                        docs.append(doc)
+                    except ValueError, e:
+                        errors.append((doc, e.message))
+                else:
+                    docs.append(doc)
+
+        database.bulk_save(docs)
+        return errors
 
 
 def get_form_for_document(document):
