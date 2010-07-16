@@ -89,7 +89,8 @@ class Specimen(CoercedModel):
         "month": unicode,
         "day": unicode,
         "collector": unicode,
-        "collection": unicode
+        "collection": unicode,
+        "elevation": int
     }
     _unique_together = (
         "genus",
