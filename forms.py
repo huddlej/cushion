@@ -63,7 +63,10 @@ class ImportDataForm(forms.Form):
                 else:
                     docs.append(doc)
 
-        database.bulk_save(docs)
+        # Save all documents if there weren't any errors.
+        if len(errors) == 0:
+            database.bulk_save(docs)
+
         return errors
 
 
