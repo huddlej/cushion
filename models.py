@@ -70,10 +70,10 @@ class CoercedModel(dict):
         None.
         """
         doc_id = None
-        if hasattr(self, "_unique_together"):
+        if hasattr(self, "_unique_fields"):
             doc_id = hashlib.sha1("".join(
                 [str(self.get(key))
-                 for key in self._unique_together
+                 for key in self._unique_fields
                  if self.get(key) is not None]
             )).hexdigest()
 
@@ -93,7 +93,7 @@ class Specimen(CoercedModel):
         "collection": unicode,
         "elevation": int
     }
-    _unique_together = (
+    _unique_fields = (
         "genus",
         "species",
         "latitude",
