@@ -13,16 +13,6 @@ class CreateDatabaseForm(forms.Form):
     name = forms.CharField(help_text="Note that only lowercase characters (a-z), digits (0-9), or any of the characters _, $, (, ), +, -, and / are allowed.")
 
 
-class DocumentForm(forms.Form):
-    title = forms.CharField()
-    content = forms.CharField(widget=forms.Textarea(attrs={"cols": 80,
-                                                           "rows": 20}))
-
-
-class UploadFileForm(forms.Form):
-    file = forms.FileField(label="Attach a file:")
-
-
 class ImportDataForm(forms.Form):
     """
     Imports the uploaded file of data into the selected database.
