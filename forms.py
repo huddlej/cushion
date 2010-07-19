@@ -1,12 +1,14 @@
 import csv
 import logging
 
+from couchdbkit.ext.django.forms import DocumentForm
 from django import forms
 from django.utils.datastructures import SortedDict
 
 from models import (
     registry as registered_models,
-    Registry
+    Registry,
+    Similar
 )
 
 log = logging.getLogger(__name__)
@@ -135,3 +137,8 @@ def get_form_for_document(document):
 
     return form
 
+
+class SimilarForm(DocumentForm):
+    class Meta:
+        document = Similar
+form_registry.register("SimilarForm", SimilarForm)

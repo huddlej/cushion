@@ -1,6 +1,7 @@
 """
 Optional models for raw data being loaded into CouchDB.
 """
+from couchdbkit.ext.django import schema
 import datetime
 import hashlib
 
@@ -131,3 +132,8 @@ class SimilarSpecies(CoercedModel):
         "similar_species": unicode
     }
 registry.register("SimilarSpecies", SimilarSpecies)
+
+
+class Similar(schema.Document):
+    species = schema.StringProperty()
+    similar_species = schema.StringProperty()
