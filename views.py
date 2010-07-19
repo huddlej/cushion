@@ -205,6 +205,10 @@ def document(request, database_name, document_id, view_name=None):
     if attach_form.is_valid():
         file = request.FILES["file"]
         database.put_attachment(document, file.read(), file.name)
+        messages.success(
+            request,
+            "Attachment '%s' has been added to document '%s'." % (file.name, document_id)
+        )
         return HttpResponseRedirect(
             reverse(
                 "cushion_document",
