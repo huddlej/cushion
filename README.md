@@ -17,16 +17,16 @@ A Django application for browsing and editing CouchDB documents.
         - **browse raw documents**
         - attachments
           - **display attachments**
-          - add
-          - delete
+          - **add**
+          - **delete**
           - update
-        - create
+        - **create (from predefined types)**
         - edit
           - **determine form from data types**
           - determine form from predefined Django form
           - dynamically add/remove form fields
         - copy
-        - delete
+        - **delete**
       - Views
         - browse by view
         - UI support for valid view options
