@@ -3,11 +3,30 @@
 {% block content %}
 {% block object-tools %}
 <ul class="object-tools">
+    <li><a href="?add=1" class="addlink">Add Document</a></li>
     <li><a href="?compact=1">Compact Database</a></li>
     <li><a href="?empty=1">Empty Database</a></li>
     <li><a href="?delete=1">Delete Database</a></li>
 </ul>
 {% endblock %}
+
+{% if add_forms %}
+    <h2>Add a Document</h2>
+
+    {% if add_form %}
+        <form action="?add=1&add_form={{ request.GET.add_form }}" method="post">{% csrf_token %}
+        {{ add_form.as_p }}
+        <p><input type="submit" value="Add Document" /> or <a href="?">Cancel</a></p>
+        </form>
+    {% else %}
+        <p>Choose which type of document to add:</p>
+        <ul>
+        {% for name, form in add_forms.items %}
+            <li><a href="?add=1&add_form={{ name }}">{{ name }}</a></li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endif %}
 
 <h2>Views</h2>
 

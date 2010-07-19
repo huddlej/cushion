@@ -14,6 +14,7 @@ from django.template import RequestContext
 from forms import (
     CreateDatabaseForm,
     ImportDataForm,
+    form_registry,
     get_form_for_document
 )
 
@@ -50,15 +51,29 @@ def database(request, database_name):
         messages.success(request, "Database '%s' has been deleted." % database_name)
         return HttpResponseRedirect(reverse("cushion_index"))
 
+    context = {}
     database = server.get_or_create_db(database_name)
+
+    if request.GET.get("add"):
+        context["add_forms"] = form_registry
+        if "add_form" in request.GET and request.GET.get("add_form") in form_registry:
+            add_form_cls = form_registry.get(request.GET.get("add_form"))
+            add_form = add_form_cls(request.POST or None)
+            if add_form.is_valid():
+                document = add_form.save()
+                return HttpResponseRedirect(
+                    reverse(
+                        "cushion_document",
+                        args=(database_name, document.get_id,)
+                    )
+                )
+
+            context["add_form"] = add_form
 
     if request.GET.get("compact"):
         database.compact()
         messages.success(request, "Database '%s' has been compacted." % database_name)
         return HttpResponseRedirect(reverse("cushion_database", args=(database_name,)))
-
-    views_by_design_doc = {}
-    context = {}
 
     form = ImportDataForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -72,6 +87,7 @@ def database(request, database_name):
 
     # Fetch all documents defining a key range that includes only design
     # documents.
+    views_by_design_doc = {}
     for design_doc in database.all_docs(startkey="_design", endkey="_design0"):
         doc = database.get(design_doc["id"])
         if "views" in doc:
