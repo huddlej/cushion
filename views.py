@@ -172,6 +172,13 @@ def document(request, database_name, document_id, view_name=None):
     server = Server(settings.COUCHDB_SERVER)
     database = server.get_or_create_db(database_name)
     document = database.get(document_id)
+
+    # Delete this document if the user requested to do so.
+    if request.GET.get("delete"):
+        database.delete_doc(document_id)
+        messages.success(request, "Document '%s' has been deleted." % document_id)
+        return HttpResponseRedirect(reverse("cushion_database", args=(database_name,)))
+
     form_class = get_form_for_document(document)
     form = form_class(request.POST or None, initial=document)
 

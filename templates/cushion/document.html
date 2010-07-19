@@ -15,6 +15,12 @@
 {% endblock %}
 
 {% block content %}
+{% block object-tools %}
+<ul class="object-tools">
+    <li><a href="?delete=1">Delete Document</a></li>
+</ul>
+{% endblock %}
+
 <form method="post" action="">{% csrf_token %}
 {{ form.as_p }}
 <p><input type="submit" /></p>
