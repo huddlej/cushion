@@ -174,7 +174,7 @@ def document(request, database_name, document_id, view_name=None):
     database = server.get_or_create_db(database_name)
     document = database.get(document_id)
 
-    # Delete this document if the user requested to do so.
+    # Delete this document.
     if request.GET.get("delete"):
         database.delete_doc(document_id)
         messages.success(request, "Document '%s' has been deleted." % document_id)
