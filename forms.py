@@ -5,10 +5,12 @@ from django import forms
 from django.utils.datastructures import SortedDict
 
 from models import (
-    registry as registered_models
+    registry as registered_models,
+    Registry
 )
 
 log = logging.getLogger(__name__)
+form_registry = Registry()
 
 
 class CreateDatabaseForm(forms.Form):
