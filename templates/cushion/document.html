@@ -26,8 +26,14 @@
 <p><input type="submit" /></p>
 </form>
 
+<h2>Attachments</h2>
+
+<form method="post" action="" enctype="multipart/form-data">{% csrf_token %}
+{{ attach_form.as_p }}
+<p><input type="submit" value="Attach File" /></p>
+</form>
+
 {% if attachments %}
-    <h2>Attachments</h2>
     <table>
         <tr>
             <th>Name</th>
@@ -42,5 +48,7 @@
         </tr>
     {% endfor %}
     </table>
+{% else %}
+    <p>There are no attachments for this document.</p>
 {% endif %}
 {% endblock %}

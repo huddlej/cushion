@@ -97,6 +97,13 @@ class ImportDataForm(forms.Form):
         return errors
 
 
+class AttachFileForm(forms.Form):
+    """
+    Attaches a file to a document in the database.
+    """
+    file = forms.FileField(label="Select a file:")
+
+
 def get_form_for_document(document):
     """
     Returns a Django form with fields based on the data types of the given

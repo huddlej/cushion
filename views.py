@@ -12,6 +12,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from forms import (
+    AttachFileForm,
     CreateDatabaseForm,
     ImportDataForm,
     form_registry,
@@ -179,6 +180,19 @@ def document(request, database_name, document_id, view_name=None):
         messages.success(request, "Document '%s' has been deleted." % document_id)
         return HttpResponseRedirect(reverse("cushion_database", args=(database_name,)))
 
+    # Attach an uploaded file.
+    attach_form = AttachFileForm(request.POST or None, request.FILES or None)
+    if attach_form.is_valid():
+        file = request.FILES["file"]
+        database.put_attachment(document, file.read(), file.name)
+        return HttpResponseRedirect(
+            reverse(
+                "cushion_document",
+                args=(database_name, document_id)
+            )
+        )
+
+    # Determine which form to use for this document.
     form_class = get_form_for_document(document)
     form = form_class(request.POST or None, initial=document)
 
@@ -200,7 +214,8 @@ def document(request, database_name, document_id, view_name=None):
         "document_id": document_id,
         "document": document,
         "attachments": document.get("_attachments", {}),
-        "form": form
+        "form": form,
+        "attach_form": attach_form
     }
 
     return render_to_response(
