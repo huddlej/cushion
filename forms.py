@@ -4,7 +4,9 @@ import logging
 from django import forms
 from django.utils.datastructures import SortedDict
 
-from models import registry as registered_models
+from models import (
+    registry as registered_models
+)
 
 log = logging.getLogger(__name__)
 
