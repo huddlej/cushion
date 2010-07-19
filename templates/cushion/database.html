@@ -16,7 +16,7 @@
     {% if add_form %}
         <form action="?add=1&add_form={{ request.GET.add_form }}" method="post">{% csrf_token %}
         {{ add_form.as_p }}
-        <p><input type="submit" value="Add Document" /> or <a href="?">Cancel</a></p>
+        <p><input type="submit" name="save" value="Save Document" /> <input type="submit" name="save" value="Save and Add Another" /> or <a href="?">Cancel</a></p>
         </form>
     {% else %}
         <p>Choose which type of document to add:</p>

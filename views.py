@@ -62,12 +62,28 @@ def database(request, database_name):
             add_form = add_form_cls(request.POST or None)
             if add_form.is_valid():
                 document = add_form.save()
-                return HttpResponseRedirect(
-                    reverse(
+                messages.success(
+                    request,
+                    "Document '%s' has been saved." % document.get_id
+                )
+
+                # Save and add another.
+                if "add another" in request.POST["save"].lower():
+                    redirect_url = "%s?add=1&add_form=%s" % (
+                        reverse(
+                            "cushion_database",
+                            args=(database_name,)
+                        ),
+                        request.GET.get("add_form")
+                    )
+                # Save and view new document.
+                else:
+                    redirect_url = reverse(
                         "cushion_document",
                         args=(database_name, document.get_id,)
                     )
-                )
+
+                return HttpResponseRedirect(redirect_url)
 
             context["add_form"] = add_form
 
