@@ -29,7 +29,8 @@ def index(request):
                                             args=(database_name,)))
 
     return render_to_response("cushion/index.html",
-                              {"server": server,
+                              {"title": "CouchDB",
+                               "server": server,
                                "databases": databases,
                                "form": create_database_form},
                               context_instance=RequestContext(request))
