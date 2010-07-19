@@ -180,6 +180,26 @@ def document(request, database_name, document_id, view_name=None):
         messages.success(request, "Document '%s' has been deleted." % document_id)
         return HttpResponseRedirect(reverse("cushion_database", args=(database_name,)))
 
+    # Delete an attachment.
+    if request.GET.get("delete_attachment"):
+        attachment_name = request.GET.get("delete_attachment")
+        attachment_deleted = database.delete_attachment(
+            document,
+            attachment_name
+        )
+
+        if attachment_deleted:
+            messages.success(request, "Attachment '%s' has been deleted." % attachment_name)
+        else:
+            messages.error(request, "Attachment '%s' could not be deleted." % attachment_name)
+
+        return HttpResponseRedirect(
+            reverse(
+                "cushion_document",
+                args=(database_name, document_id)
+            )
+        )
+
     # Attach an uploaded file.
     attach_form = AttachFileForm(request.POST or None, request.FILES or None)
     if attach_form.is_valid():
