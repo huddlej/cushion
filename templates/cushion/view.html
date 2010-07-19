@@ -5,6 +5,22 @@
 {% endblock %}
 
 {% block content %}
+{% block object-tools %}
+<ul class="object-tools">
+    {% if request.GET.include_docs == "true" %}
+        <li><a href="?include_docs=false">Don't include docs</a></li>
+    {% else %}
+        <li><a href="?include_docs=true">Include docs</a></li>
+    {% endif %}
+
+    {% if request.GET.group == "true" %}
+        <li><a href="?group=false">Ungroup</a></li>
+    {% else %}
+        <li><a href="?group=true">Group</a></li>
+    {% endif %}
+</ul>
+{% endblock %}
+
 <h2>Documents</h2>
 
 <ol class="menu">
