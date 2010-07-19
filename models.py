@@ -13,27 +13,18 @@ class NotRegistered(Exception):
     pass
 
 
-class Registry(object):
-    def __init__(self):
-        self._registry = {}
-
+class Registry(dict):
     def register(self, name, value):
-        if name in self._registry:
+        if name in self:
             raise AlreadyRegistered("'%s' is already registered." % name)
 
-        self._registry[name] = value
+        self[name] = value
 
     def unregister(self, name):
-        if name not in self._registry:
+        if name not in self:
             raise NotRegistered("'%s' is not registered." % name)
 
-        return self._registry.pop(name)
-
-    def items(self):
-        return self._registry.items()
-
-    def get(self, key, default=None):
-        return self._registry.get(key, default)
+        return self.pop(name)
 registry = Registry()
 
 
