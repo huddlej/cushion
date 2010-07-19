@@ -196,6 +196,7 @@ def document(request, database_name, document_id, view_name=None):
     form_class = get_form_for_document(document)
     form = form_class(request.POST or None, initial=document)
 
+    # Save the contents of a valid document form.
     if form.is_valid():
         document.update(form.cleaned_data)
         database.save_doc(document)
