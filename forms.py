@@ -54,6 +54,7 @@ class ImportDataForm(forms.Form):
                 if self.cleaned_data["model"]:
                     model = registered_models.get(self.cleaned_data["model"])
                     try:
+                        doc = model.coerce(doc)
                         doc = model(**doc)
                         doc_id = doc.get_id()
                         if doc_id is not None:
