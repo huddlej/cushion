@@ -33,68 +33,6 @@ class BadValueError(ValueError):
     pass
 
 
-class Specimen(object):
-    _types = {
-        "genus": unicode,
-        "species": unicode,
-        "latitude": float,
-        "longitude": float,
-        "year": unicode,
-        "month": unicode,
-        "day": unicode,
-        "collector": unicode,
-        "collection": unicode,
-        "elevation": int
-    }
-    _unique_fields = (
-        "genus",
-        "species",
-        "latitude",
-        "longitude",
-        "year",
-        "month",
-        "day",
-        "collector",
-        "collection"
-    )
-    _protected_collections = ("RBC",)
-
-    def coerce(self, values):
-        """
-        Perform extra manipulation of coerced data such as merging columns.
-        """
-        values = super(Specimen, self).coerce(values)
-
-        # Convert meters to feet using a decimal conversion value and cast
-        # result back to the same type.
-        if values.get("elevation_units") == "m.":
-            feet_per_meter = 3.280839895013123
-            try:
-                values["elevation"] = self._types["elevation"](values["elevation"] * feet_per_meter)
-                values["elevation_units"] = "ft."
-            except TypeError, e:
-                raise BadValueError("Elevation can't be converted to meters: %s" % str(e.message))
-
-        # Mark protected documents.
-        if values.get("collection") in self._protected_collections:
-            values["is_protected"] = True
-
-        # Add a modification timestamp.
-        values["date_modified"] = datetime.datetime.now().isoformat()
-
-        return values
-
-registry.register("Specimen", Specimen)
-
-
-class SimilarSpecies(object):
-    _types = {
-        "species": unicode,
-        "similar_species": unicode
-    }
-registry.register("SimilarSpecies", SimilarSpecies)
-
-
 class UniqueDocument(object):
     @property
     def get_id(self):
@@ -149,7 +87,7 @@ class Similar(schema.Document):
     similar_species = schema.StringProperty()
 
 
-class SpecimenModel(CoercedUniqueDocument):
+class Specimen(CoercedUniqueDocument):
     genus = schema.StringProperty()
     species = schema.StringProperty()
     latitude = schema.FloatProperty()
@@ -172,5 +110,32 @@ class SpecimenModel(CoercedUniqueDocument):
         "collector",
         "collection"
     )
+    _protected_collections = ("RBC",)
 
-registry.register("SpecimenModel", SpecimenModel)
+    @classmethod
+    def coerce(cls, values):
+        """
+        Perform extra manipulation of coerced data.
+        """
+        values = super(Specimen, cls).coerce(values)
+
+        # Convert meters to feet using a decimal conversion value and cast
+        # result back to the same type.
+        if values.get("elevation_units") == "m.":
+            feet_per_meter = 3.280839895013123
+            try:
+                values["elevation"] = cls._properties["elevation"].to_python(values["elevation"] * feet_per_meter)
+                values["elevation_units"] = "ft."
+            except TypeError, e:
+                raise BadValueError("Elevation can't be converted to meters: %s" % str(e.message))
+
+        # Mark protected documents.
+        if values.get("collection") in cls._protected_collections:
+            values["is_protected"] = True
+
+        # Add a modification timestamp.
+        values["date_modified"] = datetime.datetime.now().isoformat()
+
+        return values
+
+registry.register("Specimen", Specimen)
