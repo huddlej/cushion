@@ -29,10 +29,6 @@ class Registry(dict):
 registry = Registry()
 
 
-class BadValueError(ValueError):
-    pass
-
-
 class UniqueDocument(object):
     @property
     def get_id(self):
@@ -52,6 +48,10 @@ class UniqueDocument(object):
             doc_id = getattr(self, "_id", None)
 
         return doc_id
+
+
+class BadValueError(ValueError):
+    pass
 
 
 class CoercedDocument(schema.Document):
