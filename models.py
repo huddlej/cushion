@@ -109,6 +109,7 @@ class UniqueDocument(object):
                  for key in self._unique_fields
                  if getattr(self, key, None) is not None]
             )).hexdigest()
+            self._id = doc_id
         else:
             doc_id = getattr(self, "_id", None)
 
