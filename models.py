@@ -33,46 +33,7 @@ class BadValueError(ValueError):
     pass
 
 
-class CoercedModel(dict):
-    def __init__(self, **kwargs):
-        super(CoercedModel, self).__init__()
-        self.update(self.coerce(kwargs))
-
-    def coerce(self, values):
-        """
-        Coerce a dictionary of values to the types specified for given names.
-
-        Subclass this method to perform custom manipulation of the basic coerced
-        values it returns.
-        """
-        for key, value in values.items():
-            if key in self._types:
-                try:
-                    values[key] = self._types[key](value)
-                except ValueError, e:
-                    raise BadValueError("Attribute '%s' with value '%s' couldn't be validated: %s"
-                                        % (key, value, e.message))
-
-        return values
-
-    def get_id(self):
-        """
-        Create a document id from the SHA-1 hash of all non-empty unique field
-        values for this document if unique fields are defined. Otherwise, return
-        None.
-        """
-        doc_id = None
-        if hasattr(self, "_unique_fields"):
-            doc_id = hashlib.sha1("".join(
-                [str(self.get(key))
-                 for key in self._unique_fields
-                 if self.get(key) is not None]
-            )).hexdigest()
-
-        return doc_id
-
-
-class Specimen(CoercedModel):
+class Specimen(object):
     _types = {
         "genus": unicode,
         "species": unicode,
@@ -126,12 +87,60 @@ class Specimen(CoercedModel):
 registry.register("Specimen", Specimen)
 
 
-class SimilarSpecies(CoercedModel):
+class SimilarSpecies(object):
     _types = {
         "species": unicode,
         "similar_species": unicode
     }
 registry.register("SimilarSpecies", SimilarSpecies)
+
+
+class UniqueDocument(object):
+    @property
+    def get_id(self):
+        """
+        Create a document id from the SHA-1 hash of all non-empty unique field
+        values for this document if unique fields are defined. Otherwise, return
+        None.
+        """
+        if hasattr(self, "_unique_fields"):
+            doc_id = hashlib.sha1("".join(
+                [str(getattr(self, key))
+                 for key in self._unique_fields
+                 if getattr(self, key, None) is not None]
+            )).hexdigest()
+        else:
+            doc_id = getattr(self, "_id", None)
+
+        return doc_id
+
+
+class CoercedDocument(schema.Document):
+    """
+    Adds a ``coerce`` method to a CouchDB document allowing document values to
+    be coerced when possible.
+    """
+    @classmethod
+    def coerce(cls, values):
+        """
+        Coerce a dictionary of values to the types specified for given names.
+
+        Subclass this method to perform custom manipulation of the basic coerced
+        values it returns.
+        """
+        for key, value in values.items():
+            if key in cls._properties:
+                try:
+                    values[key] = cls._properties[key].to_python(value)
+                except ValueError, e:
+                    raise BadValueError("Attribute '%s' with value '%s' couldn't be validated: %s"
+                                        % (key, value, e.message))
+
+        return values
+
+
+class CoercedUniqueDocument(UniqueDocument, CoercedDocument):
+    pass
 
 
 class Similar(schema.Document):
