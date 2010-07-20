@@ -80,16 +80,16 @@ class ImportDataForm(forms.Form):
                                             for doc in existing_docs])
                     for doc in docs:
                         if "_id" in doc and doc["_id"] in revisions_by_id:
-                            doc["_rev"] = revisions_by_id[doc["_id"]]
+                            doc._doc["_rev"] = revisions_by_id[doc["_id"]]
                 else:
                     # If the user didn't approve document overwriting, return an
                     # error list for the conflicting documents.
                     docs_by_id = dict([(doc["_id"], doc) for doc in docs])
-                    errors = [(docs_by_id[existing_doc["id"]], "Document already exists.")
+                    errors = [(docs_by_id[existing_doc["id"]]._doc, "Document already exists.")
                               for existing_doc in existing_docs]
 
             if len(errors) == 0:
-                response = database.bulk_save(docs)
+                response = database.bulk_save([doc._doc for doc in docs])
 
         return errors
 
