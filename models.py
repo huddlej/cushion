@@ -146,3 +146,30 @@ class CoercedUniqueDocument(UniqueDocument, CoercedDocument):
 class Similar(schema.Document):
     species = schema.StringProperty()
     similar_species = schema.StringProperty()
+
+
+class SpecimenModel(CoercedUniqueDocument):
+    genus = schema.StringProperty()
+    species = schema.StringProperty()
+    latitude = schema.FloatProperty()
+    longitude = schema.FloatProperty()
+    year = schema.StringProperty()
+    month = schema.StringProperty()
+    day = schema.StringProperty()
+    collector = schema.StringProperty()
+    collection = schema.StringProperty()
+    elevation = schema.IntegerProperty()
+
+    _unique_fields = (
+        "genus",
+        "species",
+        "latitude",
+        "longitude",
+        "year",
+        "month",
+        "day",
+        "collector",
+        "collection"
+    )
+
+registry.register("SpecimenModel", SpecimenModel)
