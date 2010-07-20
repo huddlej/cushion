@@ -67,9 +67,9 @@ class ImportDataForm(forms.Form):
         if len(errors) == 0:
             # Check for existing documents with the same ids as the imported
             # documents.
-            existing_docs = database.documents(
-                keys=[doc.get("_id") for doc in docs if doc.get("_id")]
-            )
+            keys = [doc.get_id for doc in docs if doc.get_id]
+            existing_docs = database.documents(keys=keys)
+            existing_docs = filter(lambda x: "error" not in x, existing_docs)
 
             if len(existing_docs) > 0:
                 if self.cleaned_data["overwrite"]:
