@@ -61,7 +61,9 @@ def database(request, database_name):
             add_form_cls = form_registry.get(request.GET.get("add_form"))
             add_form = add_form_cls(request.POST or None)
             if add_form.is_valid():
-                document = add_form.save()
+                document = add_form.save(commit=False)
+                document.set_db(database)
+                document.save()
                 messages.success(
                     request,
                     "Document '%s' has been saved." % document.get_id
