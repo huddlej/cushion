@@ -81,7 +81,7 @@ class ImportDataForm(forms.Form):
         if len(errors) == 0:
             # Check for existing documents with the same ids as the imported
             # documents.
-            keys = [doc.get_id for doc in docs if doc.get_id]
+            keys = [doc.get_id for doc in docs if getattr(doc, "get_id", None)]
             existing_docs = database.documents(keys=keys)
             existing_docs = filter(lambda x: "error" not in x, existing_docs)
 
@@ -103,7 +103,8 @@ class ImportDataForm(forms.Form):
                               for existing_doc in existing_docs]
 
             if len(errors) == 0:
-                response = database.bulk_save([doc._doc for doc in docs])
+                response = database.bulk_save([getattr(doc, "_doc", None) or doc
+                                               for doc in docs])
 
         return errors
 
