@@ -14,9 +14,15 @@
     {% endif %}
 
     {% if request.GET.group == "true" %}
-        <li><a href="?group=false">Ungroup</a></li>
+        <li><a href="?group=false">Don't group</a></li>
     {% else %}
         <li><a href="?group=true">Group</a></li>
+    {% endif %}
+
+    {% if request.GET.reduce == "true" %}
+        <li><a href="?reduce=false">Don't reduce</a></li>
+    {% else %}
+        <li><a href="?reduce=true">Reduce</a></li>
     {% endif %}
 </ul>
 {% endblock %}
