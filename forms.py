@@ -13,6 +13,7 @@ from models import (
 
 log = logging.getLogger(__name__)
 form_registry = Registry()
+view_form_registry = Registry()
 
 
 class CreateDatabaseForm(forms.Form):
