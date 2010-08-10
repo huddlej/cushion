@@ -25,16 +25,30 @@ class ImportDataForm(forms.Form):
     """
     MODEL_CHOICES = [("", "-- Select a model --")]
     MODEL_CHOICES.extend([(name, name) for name, model in registered_models.items()])
+    DELIMITER_CHOICES = (("comma", "comma (,)"),
+                         ("tab", "tab (\\t)"),
+                         ("space", "space ( )"))
+    DELIMITER_STRING_MAP = {"comma": ',',
+                            "tab": '\t',
+                            "space": ' '}
     file = forms.FileField(label="Select a data file:")
     model = forms.ChoiceField(choices=MODEL_CHOICES, required=False)
     overwrite = forms.BooleanField(label="Overwrite existing records", required=False)
+    delimiter = forms.ChoiceField(
+        choices=DELIMITER_CHOICES,
+        help_text="Optional delimiter for CSV records.",
+        required=False,
+    )
+
+    def clean_delimiter(self):
+        return self.DELIMITER_STRING_MAP[self.cleaned_data["delimiter"]]
 
     def import_data(self, database, file):
         """
         Parses the given file object as a CSV file and adds the contents to the
         given database using the first row as attribute names for each column.
         """
-        reader = csv.reader(file)
+        reader = csv.reader(file, delimiter=self.cleaned_data["delimiter"])
         data = list(reader)
         errors = []
         if len(data) > 0:
