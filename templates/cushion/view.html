@@ -71,4 +71,13 @@
     </tr>
 {% endfor %}
 </table>
+
+{% if form %}
+    <h2>Form for {{ key }}</h2>
+    <form action="" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Save" />
+    </form>
+{% endif %}
+
 {% endblock %}

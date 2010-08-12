@@ -16,7 +16,8 @@ from forms import (
     CreateDatabaseForm,
     ImportDataForm,
     form_registry,
-    get_form_for_document
+    get_form_for_document,
+    view_form_registry
 )
 
 
@@ -167,6 +168,28 @@ def view(request, database_name, view_name, design_doc_name=None):
     else:
         next_page = None
 
+    # Find out if a form is registered with for this view and load the form if
+    # it exists.
+    form_cls = view_form_registry.get(view_path)
+    if "key" in get_data and form_cls:
+        form = form_cls(request.POST or None)
+        form.prepare(database, view_path, get_data)
+        if form.is_valid():
+            form.process()
+
+            # Redirect to this view with the same query parameters.
+            return HttpResponseRedirect(
+                "?".join([
+                    reverse(
+                        "cushion_view",
+                        args=(database_name, design_doc_name, view_name)
+                    ),
+                    request.META["QUERY_STRING"]
+                ])
+            )
+    else:
+        form = None
+
     documents = list(documents_list)
     get_data["limit"] = limit
     query_string = urllib.urlencode(get_data)
@@ -177,13 +200,15 @@ def view(request, database_name, view_name, design_doc_name=None):
                                "view": view_name,
                                "design_doc_name": design_doc_name,
                                "documents": documents,
+                               "form": form,
                                "num_pages": num_pages,
                                "page": page,
                                "previous_page": previous_page,
                                "next_page": next_page,
                                "last_page": last_page,
                                "limit": limit,
-                               "query_string": query_string},
+                               "query_string": query_string,
+                               "key": get_data.get("key")},
                               context_instance=RequestContext(request))
 
 
