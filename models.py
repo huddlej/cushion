@@ -82,11 +82,6 @@ class CoercedUniqueDocument(UniqueDocument, CoercedDocument):
     pass
 
 
-class Similar(schema.Document):
-    species = schema.StringProperty()
-    similar_species = schema.StringProperty()
-
-
 class Specimen(CoercedUniqueDocument):
     genus = schema.StringProperty()
     species = schema.StringProperty()
