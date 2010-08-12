@@ -2,7 +2,6 @@ from couchdbkit import Server
 import couchdb
 import math
 import urllib
-from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
@@ -291,47 +290,3 @@ def document(request, database_name, document_id, view_name=None):
         context,
         context_instance=RequestContext(request)
     )
-
-
-# def edit(request, doc_id=None):
-#     db = get_database()
-#     if doc_id is not None:
-#         doc = get_document_or_404(db, doc_id)
-#     else:
-#         doc = None
-
-#     # Handle any requests to delete an attachment and return to editing the
-#     # document.
-#     delete_attachment = request.GET.get("delete_attachment")
-#     if delete_attachment and doc:
-#         db.delete_attachment(doc, delete_attachment)
-#         return HttpResponseRedirect(reverse("cushion_edit", args=(doc.id,)))
-
-#     data = request.POST or None
-#     files = request.FILES or None
-
-#     form = DocumentForm(data, initial=doc)
-#     upload_form = UploadFileForm(data, files)
-#     if form.is_valid():
-#         if doc_id:
-#             doc.update(form.cleaned_data)
-#         else:
-#             doc = couchdb.Document(**form.cleaned_data)
-#             doc.id = uuid4().hex
-
-#         db[doc_id] = doc
-
-#         # Add a file to the document.
-#         if upload_form.is_valid():
-#             file = request.FILES["file"]
-#             db.put_attachment(doc, file, file.name)
-
-#         return HttpResponseRedirect(reverse("cushion_edit", args=(doc.id,)))
-
-#     context = {"form": form,
-#                "upload_form": upload_form,
-#                "doc": doc}
-#     if doc:
-#         context["files"] = doc.get("_attachments")
-
-#     return render_to_response("cushion/edit.html", context)
