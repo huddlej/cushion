@@ -5,6 +5,7 @@ import urllib
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -20,6 +21,7 @@ from forms import (
 )
 
 
+@login_required
 def index(request):
     server = Server(settings.COUCHDB_SERVER)
     databases = [server.get_or_create_db(db).info() for db in server.all_dbs()]
@@ -38,6 +40,7 @@ def index(request):
                               context_instance=RequestContext(request))
 
 
+@login_required
 def database(request, database_name):
     server = Server(settings.COUCHDB_SERVER)
 
@@ -127,6 +130,7 @@ def database(request, database_name):
                               context_instance=RequestContext(request))
 
 
+@login_required
 def view(request, database_name, view_name, design_doc_name=None):
     server = Server(settings.COUCHDB_SERVER)
     database = server.get_or_create_db(database_name)
@@ -211,6 +215,7 @@ def view(request, database_name, view_name, design_doc_name=None):
                               context_instance=RequestContext(request))
 
 
+@login_required
 def document(request, database_name, document_id, view_name=None):
     server = Server(settings.COUCHDB_SERVER)
     database = server.get_or_create_db(database_name)
