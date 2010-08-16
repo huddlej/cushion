@@ -48,33 +48,34 @@ class ImportDataForm(forms.Form):
         given database using the first row as attribute names for each column.
         """
         reader = csv.reader(file, delimiter=self.cleaned_data["delimiter"])
-        data = list(reader)
         errors = []
-        if len(data) > 0:
-            # Get all non-empty column names using the first row of the data.
-            column_names = filter(lambda i: i, data.pop(0))
+        docs = []
+        for row in reader:
+            if reader.line_num == 1:
+                # Get all non-empty column names using the first row of the
+                # data.
+                column_names = filter(lambda i: i, row)
+                continue
 
-            column_range = xrange(len(column_names))
-            docs = []
-            for row in data:
-                doc = {}
-                # TODO: Replace this for loop with a zip.
-                for i in column_range:
-                    # Map row value to corresponding column name.
-                    if len(row[i]) > 0:
-                        doc[column_names[i]] = row[i]
+            column_range = xrange(min(len(column_names), len(row)))
+            doc = {}
+            # TODO: Replace this for loop with a zip.
+            for i in column_range:
+                # Map row value to corresponding column name.
+                if len(row[i]) > 0:
+                    doc[column_names[i]] = row[i]
 
-                if self.cleaned_data["model"]:
-                    model = registered_models.get(self.cleaned_data["model"])
-                    try:
-                        doc = model.coerce(doc)
-                        doc = model(**doc)
-                        # doc["type"] = self.cleaned_data["model"].lower()
-                        docs.append(doc)
-                    except ValueError, e:
-                        errors.append((doc, e.message))
-                else:
+            if self.cleaned_data["model"]:
+                model = registered_models.get(self.cleaned_data["model"])
+                try:
+                    doc = model.coerce(doc)
+                    doc = model(**doc)
+                    # doc["type"] = self.cleaned_data["model"].lower()
                     docs.append(doc)
+                except ValueError, e:
+                    errors.append((doc, e.message))
+            else:
+                docs.append(doc)
 
         # Only try to save documents if there weren't any errors.
         if len(errors) == 0:
