@@ -135,40 +135,27 @@ def view(request, database_name, view_name, design_doc_name=None):
     database = server.get_or_create_db(database_name)
 
     get_data = dict([(str(key), value) for key, value in request.GET.items()])
-    skip = int(get_data.pop("skip", "0"))
+
     limit = int(get_data.pop("limit", "10"))
-    page = skip / limit + 1
+    startkey = get_data.get("startkey")
+    startkey_docid = get_data.get("startkey_docid")
+    descending = True if get_data.get("descending") == "true" else False
+
+    if startkey:
+        get_data["skip"] = 1
 
     request.session["last_couchdb_view"] = {
         "name": view_name,
         "design_doc_name": design_doc_name,
-        "page": page
+        "limit": limit,
+        "startkey": startkey,
+        "startkey_docid": startkey_docid
     }
 
     if design_doc_name:
         view_path = "%s/%s" % (design_doc_name, view_name)
     else:
         view_path = view_name
-
-    documents_list = database.view(
-        view_path,
-        limit=limit,
-        skip=skip,
-        **get_data
-    )
-
-    num_pages = int(math.ceil(documents_list.total_rows / float(limit)))
-    last_page = (num_pages - 1) * limit
-
-    if page > 1:
-        previous_page = skip - limit
-    else:
-        previous_page = None
-
-    if page < num_pages:
-        next_page = skip + limit
-    else:
-        next_page = None
 
     # Find out if a form is registered with for this view and load the form if
     # it exists.
@@ -192,25 +179,58 @@ def view(request, database_name, view_name, design_doc_name=None):
     else:
         form = None
 
+    context = {}
+    documents_list = database.view(
+        view_path,
+        limit=limit + 1,
+        **get_data
+    )
     documents = list(documents_list)
+
+    if descending:
+        documents.reverse()
+        offset = documents_list.total_rows - documents_list.offset - limit
+    else:
+        offset = documents_list.offset
+
+    # If we got fewer documents than the limit plus one, we're on the last page.
+    if (not descending and len(documents) <= limit) or (descending and not startkey):
+        next_startkey = None
+        next_startkey_docid = None
+    else:
+        next_startkey = documents[-1]["key"]
+        next_startkey_docid = documents[-1]["id"]
+
+        # Only display the documents we requested minus the document from the
+        # next page.
+        documents = documents[:-1]
+
+    get_data.pop("startkey", None)
+    get_data.pop("startkey_docid", None)
+    get_data.pop("descending", None)
     get_data["limit"] = limit
     query_string = urllib.urlencode(get_data)
 
+    context.update({
+        "title": "View: %s" % view_name,
+        "database_name": database_name,
+        "view": view_name,
+        "design_doc_name": design_doc_name,
+        "documents": documents,
+        "startkey": startkey,
+        "startkey_docid": startkey_docid,
+        "next_startkey": next_startkey,
+        "next_startkey_docid": next_startkey_docid,
+        "offset": offset,
+        "total_rows": documents_list.total_rows,
+        "limit": limit,
+        "query_string": query_string,
+        "form": form,
+        "key": get_data.get("key")
+    })
+
     return render_to_response("cushion/view.html",
-                              {"title": "View: %s" % view_name,
-                               "database_name": database_name,
-                               "view": view_name,
-                               "design_doc_name": design_doc_name,
-                               "documents": documents,
-                               "form": form,
-                               "num_pages": num_pages,
-                               "page": page,
-                               "previous_page": previous_page,
-                               "next_page": next_page,
-                               "last_page": last_page,
-                               "limit": limit,
-                               "query_string": query_string,
-                               "key": get_data.get("key")},
+                              context,
                               context_instance=RequestContext(request))
 
 
