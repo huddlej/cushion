@@ -19,7 +19,8 @@
         <th>Number of Documents</th>
         <th>Update Sequence</th>
     </tr>
-{% for database in databases %}
+
+{% for database in databases|dictsort:"db_name" %}
     <tr>
         <td><a href="{% url cushion_database database.db_name %}">{{ database.db_name }}</a></td>
         <td>{{ database.disk_size }}</td>
