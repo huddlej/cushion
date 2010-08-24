@@ -31,7 +31,7 @@
 <h2>Views</h2>
 
 <ol>
-    <li><a href="{% url cushion_view database_name "_all_docs" %}">All Documents</a></li>
+    <li><a href="{% url cushion_view database_name "_all_docs" %}">All Documents ({{ database_info.doc_count }})</a></li>
     <li>
         Design Documents
         <dl>
@@ -55,11 +55,13 @@
     <div class="errornote" style="height: 300px; overflow: auto;">
         <h3>Invalid Data</h3>
 
-        <p>The following rows couldn't be saved:</p>
+        {% with errors|length as num_errors %}
+            <p>The following {{ num_errors }} row{{ num_errors|pluralize }} couldn't be saved:</p>
+        {% endwith %}
         <dl>
         {% for doc, error in errors %}
-            <dt><pre>{{ doc|pprint }}</pre></dt>
-            <dd>{{ error }}</dd>
+            <dt><pre>{{ doc|linebreaks|pprint }}</pre></dt>
+            <dd>{{ error|linebreaks }}</dd>
         {% endfor %}
         </dl>
     </div>

@@ -1,6 +1,10 @@
 import csv
+import difflib
 import logging
+import pprint
+import traceback
 
+from couchdbkit.exceptions import BulkSaveError
 from django import forms
 from django.utils.datastructures import SortedDict
 
@@ -33,6 +37,10 @@ class ImportDataForm(forms.Form):
     file = forms.FileField(label="Select a data file:")
     model = forms.ChoiceField(choices=MODEL_CHOICES, required=False)
     overwrite = forms.BooleanField(label="Overwrite existing records", required=False)
+    skip_duplicates = forms.BooleanField(
+        required=False,
+        label="Skip duplicates in the new data set"
+    )
     delimiter = forms.ChoiceField(
         choices=DELIMITER_CHOICES,
         help_text="Optional delimiter for CSV records.",
@@ -73,7 +81,7 @@ class ImportDataForm(forms.Form):
                     # doc["type"] = self.cleaned_data["model"].lower()
                     docs.append(doc)
                 except ValueError, e:
-                    errors.append((doc, e.message))
+                    errors.append((doc, traceback.format_exc()))
             else:
                 docs.append(doc)
 
@@ -82,31 +90,78 @@ class ImportDataForm(forms.Form):
             # Check for existing documents with the same ids as the imported
             # documents.
             keys = [doc.get_id for doc in docs if getattr(doc, "get_id", None)]
-            existing_docs = database.documents(keys=keys)
-            existing_docs = filter(lambda x: "error" not in x, existing_docs)
+            existing_docs = self.existing_docs(database, keys, docs)
 
             if len(existing_docs) > 0:
                 if self.cleaned_data["overwrite"]:
                     # If the user approved document overwriting, update each
                     # document of imported data to the current revision of that
                     # document in the database.
-                    revisions_by_id = dict([(doc["id"], doc["value"]["rev"])
-                                            for doc in existing_docs])
-                    for doc in docs:
-                        if "_id" in doc and doc["_id"] in revisions_by_id:
-                            doc._doc["_rev"] = revisions_by_id[doc["_id"]]
+                    docs = existing_docs
                 else:
                     # If the user didn't approve document overwriting, return an
                     # error list for the conflicting documents.
-                    docs_by_id = dict([(doc["_id"], doc) for doc in docs])
-                    errors = [(docs_by_id[existing_doc["id"]]._doc, "Document already exists.")
+                    errors = [(existing_doc, "Document already exists.")
                               for existing_doc in existing_docs]
 
             if len(errors) == 0:
-                response = database.bulk_save([getattr(doc, "_doc", None) or doc
-                                               for doc in docs])
+                try:
+                    database.bulk_save([getattr(doc, "_doc", None) or doc
+                                        for doc in docs])
+                except BulkSaveError, e:
+                    if not self.cleaned_data["skip_duplicates"]:
+                        # Show the difference between apparently duplicated
+                        # records.
+                        keys = set([error["id"] for error in e.errors])
+                        docs_by_id = {}
+                        for doc in docs:
+                            doc_id = doc._doc["_id"]
+                            if doc_id in keys:
+                                docs_by_id.setdefault(doc_id, []).append(doc._doc)
+
+                        for key in keys:
+                            if key in docs_by_id:
+                                errors.append((
+                                    self.diff_docs(docs_by_id[key][0], docs_by_id[key][1]),
+                                    "Duplicate document; differences between documents shown."
+                                ))
 
         return errors
+
+    def diff_docs(self, doc_a, doc_b):
+        """
+        Return a unified diff of the given docs' string representations.
+        """
+        return "\n".join(
+            list(
+                difflib.unified_diff(
+                    pprint.pformat(doc_a).split("\n"),
+                    pprint.pformat(doc_b).split("\n"),
+                    lineterm=""
+                )
+            )
+        )
+
+    def existing_docs(self, database, ids, docs=None):
+        existing_docs = database.documents(keys=ids)
+        existing_docs = filter(lambda x: "error" not in x, existing_docs)
+
+        # If no documents are given to manipulate, return the documents fetched
+        # from the database. If documents are given and exist in the database,
+        # update given documents with the revisions of the documents in the
+        # database. Otherwise there is nothing to do.
+        if docs is None:
+            docs = existing_docs
+        elif len(existing_docs) > 0:
+            revisions_by_id = dict([(doc["id"], doc["value"]["rev"])
+                                    for doc in existing_docs])
+            for doc in docs:
+                if "_id" in doc and doc["_id"] in revisions_by_id:
+                    doc._doc["_rev"] = revisions_by_id[doc["_id"]]
+        else:
+            docs = []
+
+        return docs
 
 
 class AttachFileForm(forms.Form):

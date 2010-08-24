@@ -68,6 +68,7 @@ class CoercedDocument(schema.Document):
         values it returns.
         """
         for key, value in values.items():
+            values[key] = value = value.decode("utf-8")
             if key in cls._properties:
                 try:
                     values[key] = cls._properties[key].to_python(value)
@@ -122,6 +123,7 @@ class Specimen(CoercedUniqueDocument):
                 values["elevation"] = cls._properties["elevation"].to_python(values["elevation"] * feet_per_meter)
                 values["elevation_units"] = "ft."
             except TypeError, e:
+                # TODO: get rid of this special exception.
                 raise BadValueError("Elevation can't be converted to meters: %s" % str(e.message))
 
         # Mark protected documents.

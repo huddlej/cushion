@@ -119,6 +119,7 @@ def database(request, database_name):
     context.update({
         "title": "Database: %s" % database_name,
         "server": server,
+        "database_info": database.info(),
         "database_name": database.dbname,
         "views_by_design_doc": views_by_design_doc,
         "form": form
