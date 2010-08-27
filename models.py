@@ -80,7 +80,8 @@ class CoercedDocument(schema.Document):
 
 
 class CoercedUniqueDocument(UniqueDocument, CoercedDocument):
-    pass
+    class Meta:
+        app_label = "cushion"
 
 
 class Specimen(CoercedUniqueDocument):
