@@ -59,6 +59,9 @@ class CoercedDocument(schema.Document):
     Adds a ``coerce`` method to a CouchDB document allowing document values to
     be coerced when possible.
     """
+    class Meta:
+        app_label = "cushion"
+
     @classmethod
     def coerce(cls, values):
         """
@@ -80,8 +83,7 @@ class CoercedDocument(schema.Document):
 
 
 class CoercedUniqueDocument(UniqueDocument, CoercedDocument):
-    class Meta:
-        app_label = "cushion"
+    pass
 
 
 class Specimen(CoercedUniqueDocument):
