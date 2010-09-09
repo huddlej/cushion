@@ -86,6 +86,61 @@ class CoercedUniqueDocument(UniqueDocument, CoercedDocument):
     pass
 
 
+class Label(CoercedDocument):
+    @property
+    def get_id(self):
+        return getattr(self, "_id", None)
+
+    @classmethod
+    def coerce(cls, values):
+        """
+        Perform extra manipulation of coerced data.
+        """
+        # Define mapping of CSV column names to document attribute names.
+        map_columns = {
+            "Filename": "_id",
+            "Site Name": "city",
+            "State/Location": "state"
+        }
+
+        values = super(Label, cls).coerce(values)
+
+        # Map column names and strip whitespace from values.
+        values = dict([(map_columns.get(key, key.lower()), value.strip())
+                       for key, value in values.items()])
+
+        # Add a species.
+        values["species"] = values["_id"].split("-")[0]
+
+        # Parse out elevation from its units.
+        if "elevation" in values:
+            if values["elevation"].endswith("ft"):
+                values["elevation"] = values["elevation"][:-2].strip()
+                values["elevation_units"] = "ft."
+            elif values["elevation"].endswith("m"):
+                values["elevation"] = values["elevation"][:-1].strip()
+                values["elevation_units"] = "m."
+
+        # Parse out state/province abbreviation.
+        if "state" in values and "Canada" in values["state"]:
+            # Change "Canada: YT" into "YT".
+            values["state"] = values["state"][-2:]
+
+        # Change month from long name to decimal.
+        if values.get("month"):
+            values["month"] = str(datetime.datetime.strptime(values["month"], "%B").month)
+
+        # Add a modification timestamp.
+        values["date_modified"] = datetime.datetime.now().isoformat()
+
+        # Add a type.
+        values["type"] = "label"
+
+        return values
+
+registry.register("Label", Label)
+
+
 class Specimen(CoercedUniqueDocument):
     genus = schema.StringProperty()
     species = schema.StringProperty()
