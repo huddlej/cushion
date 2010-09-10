@@ -152,6 +152,7 @@ class Specimen(CoercedUniqueDocument):
     collector = schema.StringProperty()
     collection = schema.StringProperty()
     elevation = schema.IntegerProperty()
+    notes = schema.StringProperty()
 
     _unique_fields = (
         "genus",
@@ -162,7 +163,8 @@ class Specimen(CoercedUniqueDocument):
         "month",
         "day",
         "collector",
-        "collection"
+        "collection",
+        "notes"
     )
     _protected_collections = ("RBC",)
 
