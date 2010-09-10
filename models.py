@@ -38,11 +38,16 @@ class UniqueDocument(object):
         None.
         """
         if hasattr(self, "_unique_fields"):
-            doc_id = hashlib.sha1("".join(
-                [str(getattr(self, key))
-                 for key in self._unique_fields
-                 if getattr(self, key, None) is not None]
-            )).hexdigest()
+            unique_field_strings = []
+            for key in self._unique_fields:
+                attr = getattr(self, key, None)
+                if attr is not None:
+                    if isinstance(attr, basestring):
+                        # hashlib only works with ascii.
+                        attr = attr.encode("utf-8")
+                    unique_field_strings.append(str(attr))
+
+            doc_id = hashlib.sha1("".join(unique_field_strings)).hexdigest()
             self._id = doc_id
         else:
             doc_id = getattr(self, "_id", None)
