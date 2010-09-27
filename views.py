@@ -39,6 +39,40 @@ def index(request):
                               context_instance=RequestContext(request))
 
 
+def empty_database(server, database_name):
+    """
+    Deletes all non-design documents from the given database.
+    """
+    database = server.get_or_create_db(database_name)
+    documents_per_delete = 1000
+    documents_deleted = 0
+    docs = []
+
+    # Get all non-design document ids.
+    for doc in database.all_docs(include_docs=True):
+        # Ignore design documents.
+        if doc["doc"]["_id"].startswith("_design"):
+            continue
+
+        # Mark each document as deleted.
+        doc["doc"]["_deleted"] = True
+        docs.append(doc["doc"])
+
+        # If we've reached the maximum number of docs to store before a save,
+        # save and reset the docs list.
+        if len(docs) == documents_per_delete:
+            database.bulk_save(docs)
+            docs = []
+            documents_deleted += documents_per_delete
+
+    if len(docs) > 0:
+        # Save all documents appended since the last save.
+        database.bulk_save(docs)
+        documents_deleted += len(docs)
+
+    return documents_deleted
+
+
 @login_required
 def database(request, database_name):
     server = Server(settings.COUCHDB_SERVER)
