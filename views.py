@@ -78,9 +78,11 @@ def database(request, database_name):
     server = Server(settings.COUCHDB_SERVER)
 
     if request.GET.get("empty"):
-        server.delete_db(database_name)
-        server.get_or_create_db(database_name)
-        messages.success(request, "Database '%s' has been emptied." % database_name)
+        documents_deleted = empty_database(server, database_name)
+        messages.success(
+            request,
+            "Database '%s' has been emptied of %i documents." % (database_name, documents_deleted)
+        )
         return HttpResponseRedirect(reverse("cushion_database", args=(database_name,)))
 
     if request.GET.get("delete"):
