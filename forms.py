@@ -55,7 +55,11 @@ class ImportDataForm(forms.Form):
         Parses the given file object as a CSV file and adds the contents to the
         given database using the first row as attribute names for each column.
         """
-        reader = csv.reader(file, delimiter=self.cleaned_data["delimiter"])
+        # Open the file in universal-newline mode to support CSV files created
+        # on different operating systems.
+        fh = open(file.temporary_file_path(), "rU")
+
+        reader = csv.reader(fh, delimiter=self.cleaned_data["delimiter"])
         errors = []
         docs = []
         for row in reader:
@@ -84,6 +88,9 @@ class ImportDataForm(forms.Form):
                     errors.append((doc, traceback.format_exc()))
             else:
                 docs.append(doc)
+
+        # Clean up after we're done reading the file.
+        fh.close()
 
         # Only try to save documents if there weren't any errors.
         if len(errors) == 0:
