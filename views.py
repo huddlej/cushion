@@ -77,7 +77,7 @@ def empty_database(server, database_name):
 def database(request, database_name):
     server = Server(settings.COUCHDB_SERVER)
 
-    if request.GET.get("empty"):
+    if request.GET.get("empty") and request.POST.get("confirmation"):
         documents_deleted = empty_database(server, database_name)
         messages.success(
             request,
@@ -85,7 +85,7 @@ def database(request, database_name):
         )
         return HttpResponseRedirect(reverse("cushion_database", args=(database_name,)))
 
-    if request.GET.get("delete"):
+    if request.GET.get("delete") and request.POST.get("confirmation"):
         server.delete_db(database_name)
         messages.success(request, "Database '%s' has been deleted." % database_name)
         return HttpResponseRedirect(reverse("cushion_index"))
@@ -158,7 +158,9 @@ def database(request, database_name):
         "database_info": database.info(),
         "database_name": database.dbname,
         "views_by_design_doc": views_by_design_doc,
-        "form": form
+        "form": form,
+        "confirm_empty": request.GET.get("empty"),
+        "confirm_delete": request.GET.get("delete")
     })
 
     return render_to_response("cushion/database.html",

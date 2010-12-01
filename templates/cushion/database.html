@@ -10,6 +10,18 @@
 </ul>
 {% endblock %}
 
+{% if confirm_empty %}
+    {% with "empty" as action %}
+        {% include "cushion/confirmation.html" %}
+    {% endwith %}
+{% endif %}
+
+{% if confirm_delete %}
+    {% with "delete" as action %}
+        {% include "cushion/confirmation.html" %}
+    {% endwith %}
+{% endif %}
+
 {% if add_forms %}
     <h2>Add a Document</h2>
 
