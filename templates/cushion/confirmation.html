@@ -1,0 +1,6 @@
+<div class="errornote">
+    <form method="post" action="?{{ action }}=1">{% csrf_token %}
+    <p>Are you <strong>sure</strong> you want to {{ action }} the database?</p>
+    <p><input type="hidden" name="confirmation" value="1" /><input type="submit" value="Yes, {{ action }} it." />&nbsp;&nbsp;<a href="?">No, nevermind.</a></p>
+    </form>
+</div>
