@@ -84,7 +84,7 @@ class ImportDataForm(forms.Form):
                     doc = model(**doc)
                     # doc["type"] = self.cleaned_data["model"].lower()
                     docs.append(doc)
-                except ValueError, e:
+                except (KeyError, ValueError), e:
                     errors.append((doc, traceback.format_exc()))
             else:
                 docs.append(doc)
