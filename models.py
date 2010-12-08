@@ -182,7 +182,7 @@ class Specimen(CoercedUniqueDocument):
 
         # Convert meters to feet using a decimal conversion value and cast
         # result back to the same type.
-        if values.get("elevation_units") == "m.":
+        if "elevation" in values and values.get("elevation_units") == "m.":
             feet_per_meter = 3.280839895013123
             try:
                 values["elevation"] = cls._properties["elevation"].to_python(values["elevation"] * feet_per_meter)
