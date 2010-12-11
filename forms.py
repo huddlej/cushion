@@ -77,6 +77,10 @@ class ImportDataForm(forms.Form):
                 if len(row[i]) > 0:
                     doc[column_names[i]] = row[i]
 
+            # Skip empty documents.
+            if len(doc) == 0:
+                continue
+
             if self.cleaned_data["model"]:
                 model = registered_models.get(self.cleaned_data["model"])
                 try:
