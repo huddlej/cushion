@@ -168,8 +168,7 @@ class Specimen(CoercedUniqueDocument):
         "month",
         "day",
         "collector",
-        "collection",
-        "notes"
+        "collection"
     )
     _protected_collections = ("RBC",)
 
